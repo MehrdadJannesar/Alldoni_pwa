@@ -30,6 +30,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CommandLibraryDbContext>();
     db.Database.EnsureCreated();
+    EnsureDescriptionColumn(db);
 }
 
 if (!app.Environment.IsDevelopment())
@@ -78,6 +79,7 @@ snippetsApi.MapGet("/", async (
             snippet.Id,
             snippet.Name,
             snippet.Category,
+            snippet.Description ?? string.Empty,
             snippet.Content,
             snippet.CreatedAtUtc,
             snippet.UpdatedAtUtc))
@@ -98,6 +100,7 @@ snippetsApi.MapGet("/{id:int}", async Task<Results<Ok<SnippetResponse>, NotFound
             item.Id,
             item.Name,
             item.Category,
+            item.Description ?? string.Empty,
             item.Content,
             item.CreatedAtUtc,
             item.UpdatedAtUtc))
@@ -115,6 +118,7 @@ snippetsApi.MapPost("/", async Task<Created<SnippetResponse>> (
     {
         Name = request.Name.Trim(),
         Category = request.Category.Trim(),
+        Description = request.Description?.Trim() ?? string.Empty,
         Content = request.Content.Trim(),
         CreatedAtUtc = DateTime.UtcNow
     };
@@ -139,6 +143,7 @@ snippetsApi.MapPut("/{id:int}", async Task<Results<Ok<SnippetResponse>, NotFound
 
     snippet.Name = request.Name.Trim();
     snippet.Category = request.Category.Trim();
+    snippet.Description = request.Description?.Trim() ?? string.Empty;
     snippet.Content = request.Content.Trim();
     snippet.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -174,6 +179,34 @@ static SnippetResponse ToResponse(CommandSnippet snippet) =>
         snippet.Id,
         snippet.Name,
         snippet.Category,
+        snippet.Description ?? string.Empty,
         snippet.Content,
         snippet.CreatedAtUtc,
         snippet.UpdatedAtUtc);
+
+static void EnsureDescriptionColumn(CommandLibraryDbContext db)
+{
+    var connection = db.Database.GetDbConnection();
+    connection.Open();
+
+    var hasDescriptionColumn = false;
+    using var command = connection.CreateCommand();
+    command.CommandText = "PRAGMA table_info(CommandSnippets);";
+
+    using (var reader = command.ExecuteReader())
+    {
+        while (reader.Read())
+        {
+            if (string.Equals(reader.GetString(1), nameof(CommandSnippet.Description), StringComparison.OrdinalIgnoreCase))
+            {
+                hasDescriptionColumn = true;
+                break;
+            }
+        }
+    }
+
+    if (!hasDescriptionColumn)
+    {
+        db.Database.ExecuteSqlRaw("ALTER TABLE CommandSnippets ADD COLUMN Description TEXT NOT NULL DEFAULT '';");
+    }
+}

@@ -1,3 +1,43 @@
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_UltraLight.woff") format("woff");
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Light.woff") format("woff");
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum).woff") format("woff");
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Medium.woff") format("woff");
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Bold.woff") format("woff");
+}
+
 html {
   font-size: 14px;
 }
@@ -21,6 +61,7 @@ body {
   margin-bottom: 60px;
   background: #f6f7f9;
   color: #172033;
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -105,6 +146,49 @@ body {
   resize: vertical;
 }
 
+.description-input {
+  font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif;
+  min-height: 88px;
+  resize: vertical;
+}
+
+.category-autocomplete {
+  position: relative;
+}
+
+.category-suggestions {
+  background: #ffffff;
+  border: 1px solid #d6dde8;
+  border-radius: 8px;
+  box-shadow: 0 14px 30px rgba(23, 32, 51, .14);
+  display: none;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: calc(100% + .35rem);
+  z-index: 20;
+}
+
+.category-suggestions.is-open {
+  display: grid;
+}
+
+.category-suggestion {
+  background: transparent;
+  border: 0;
+  color: #172033;
+  font: inherit;
+  padding: .55rem .75rem;
+  text-align: left;
+}
+
+.category-suggestion:hover,
+.category-suggestion:focus {
+  background: #eef4ff;
+  outline: 0;
+}
+
 .form-actions {
   display: grid;
   gap: .6rem;
@@ -151,6 +235,14 @@ body {
   overflow-wrap: anywhere;
 }
 
+.snippet-description {
+  color: #59677d;
+  font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif;
+  margin: .35rem 0 0;
+  max-width: 58rem;
+  overflow-wrap: anywhere;
+}
+
 .category-pill {
   background: #e8f0ff;
   border: 1px solid #cfe0ff;
@@ -172,6 +264,7 @@ body {
 .snippet-card pre {
   background: #101828;
   color: #f6f7f9;
+  font-family: Consolas, "Courier New", monospace;
   margin: 0;
   max-height: 360px;
   overflow: auto;

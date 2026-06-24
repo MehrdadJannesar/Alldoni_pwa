@@ -69,6 +69,7 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
         {
             Name = Input.Name.Trim(),
             Category = Input.Category.Trim(),
+            Description = Input.Description?.Trim() ?? string.Empty,
             Content = Input.Content.Trim(),
             CreatedAtUtc = DateTime.UtcNow
         };
@@ -102,6 +103,7 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
 
         snippet.Name = Input.Name.Trim();
         snippet.Category = Input.Category.Trim();
+        snippet.Description = Input.Description?.Trim() ?? string.Empty;
         snippet.Content = Input.Content.Trim();
         snippet.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -150,6 +152,7 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
             query = query.Where(snippet =>
                 EF.Functions.Like(snippet.Name, searchPattern)
                 || EF.Functions.Like(snippet.Category, searchPattern)
+                || EF.Functions.Like(snippet.Description, searchPattern)
                 || EF.Functions.Like(snippet.Content, searchPattern));
         }
 
@@ -181,6 +184,7 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
                 {
                     Name = editSnippet.Name,
                     Category = editSnippet.Category,
+                    Description = editSnippet.Description,
                     Content = editSnippet.Content
                 };
             }
@@ -194,6 +198,9 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
 
         [Required, StringLength(80)]
         public string Category { get; set; } = string.Empty;
+
+        [StringLength(500)]
+        public string? Description { get; set; }
 
         [Required, StringLength(4000)]
         public string Content { get; set; } = string.Empty;

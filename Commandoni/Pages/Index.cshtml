@@ -55,14 +55,16 @@
             </div>
             <div class="mb-3">
                 <label asp-for="Input.Category" class="form-label"></label>
-                <input asp-for="Input.Category" class="form-control" list="category-options" placeholder="Programming" />
-                <datalist id="category-options">
-                    @foreach (var category in Model.Categories)
-                    {
-                        <option value="@category"></option>
-                    }
-                </datalist>
+                <div class="category-autocomplete" data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories)'>
+                    <input asp-for="Input.Category" class="form-control category-input" autocomplete="off" placeholder="Programming" />
+                    <div class="category-suggestions" role="listbox"></div>
+                </div>
                 <span asp-validation-for="Input.Category" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Description" class="form-label"></label>
+                <textarea asp-for="Input.Description" class="form-control description-input" placeholder="What is this command for?"></textarea>
+                <span asp-validation-for="Input.Description" class="text-danger"></span>
             </div>
             <div class="mb-3">
                 <label asp-for="Input.Content" class="form-label">Command or snippet</label>
@@ -113,6 +115,10 @@
                                 <div>
                                     <span class="category-pill">@snippet.Category</span>
                                     <h3>@snippet.Name</h3>
+                                    @if (!string.IsNullOrWhiteSpace(snippet.Description))
+                                    {
+                                        <p class="snippet-description">@snippet.Description</p>
+                                    }
                                 </div>
                                 <div class="snippet-actions">
                                     <button type="button" class="btn btn-sm btn-outline-primary copy-button" data-copy-target="snippet-@snippet.Id">
@@ -157,6 +163,61 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        document.querySelectorAll(".category-autocomplete").forEach((wrapper) => {
+            const input = wrapper.querySelector(".category-input");
+            const suggestions = wrapper.querySelector(".category-suggestions");
+            const categories = JSON.parse(wrapper.dataset.categories || "[]");
+
+            const closeSuggestions = () => {
+                suggestions.innerHTML = "";
+                suggestions.classList.remove("is-open");
+            };
+
+            const termsMatch = (category, value) => {
+                const terms = value.toLowerCase().split(/\s+/).filter(Boolean);
+                const words = category.toLowerCase().split(/\s+/).filter(Boolean);
+
+                return terms.length > 0 && terms.every((term) =>
+                    words.some((word) => word.startsWith(term)) || category.toLowerCase().includes(term));
+            };
+
+            const renderSuggestions = () => {
+                const value = input.value.trim();
+                const matches = categories
+                    .filter((category) => termsMatch(category, value))
+                    .slice(0, 6);
+
+                suggestions.innerHTML = "";
+                if (matches.length === 0) {
+                    closeSuggestions();
+                    return;
+                }
+
+                matches.forEach((category) => {
+                    const option = document.createElement("button");
+                    option.type = "button";
+                    option.className = "category-suggestion";
+                    option.textContent = category;
+                    option.addEventListener("click", () => {
+                        input.value = category;
+                        closeSuggestions();
+                        input.focus();
+                    });
+                    suggestions.appendChild(option);
+                });
+
+                suggestions.classList.add("is-open");
+            };
+
+            input.addEventListener("input", renderSuggestions);
+            input.addEventListener("focus", renderSuggestions);
+            document.addEventListener("click", (event) => {
+                if (!wrapper.contains(event.target)) {
+                    closeSuggestions();
+                }
+            });
+        });
+
         document.querySelectorAll(".copy-button").forEach((button) => {
             button.addEventListener("click", async () => {
                 const target = document.getElementById(button.dataset.copyTarget);

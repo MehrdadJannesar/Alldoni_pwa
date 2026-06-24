@@ -12,6 +12,9 @@ public class CommandSnippet
     [Required, StringLength(80)]
     public string Category { get; set; } = string.Empty;
 
+    [StringLength(500)]
+    public string? Description { get; set; }
+
     [Required, StringLength(4000)]
     public string Content { get; set; } = string.Empty;
 

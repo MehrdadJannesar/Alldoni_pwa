@@ -73,6 +73,14 @@ No database file is committed to the repository. After cloning, run the app once
 dotnet run --project Commandoni\Commandoni.csproj
 ```
 
+## Persian Font
+
+The UI is configured to use IRANSans. The web font files are stored in:
+
+```text
+Commandoni/wwwroot/fonts/IRANSans/
+```
+
 ## API
 
 The app exposes Minimal API endpoints under `/api/snippets`.
@@ -100,6 +108,7 @@ Content-Type: application/json
 {
   "name": "Build solution",
   "category": "Programming",
+  "description": "Build the Commandoni solution locally.",
   "content": "dotnet build Commandoni.slnx"
 }
 ```
@@ -113,6 +122,7 @@ Content-Type: application/json
 {
   "name": "Build solution",
   "category": "Programming",
+  "description": "Build the Commandoni solution locally.",
   "content": "dotnet build Commandoni.slnx"
 }
 ```

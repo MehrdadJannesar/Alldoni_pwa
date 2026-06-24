@@ -14,6 +14,7 @@ public class CommandLibraryDbContext(DbContextOptions<CommandLibraryDbContext> o
             entity.HasKey(snippet => snippet.Id);
             entity.Property(snippet => snippet.Name).HasMaxLength(120).IsRequired();
             entity.Property(snippet => snippet.Category).HasMaxLength(80).IsRequired();
+            entity.Property(snippet => snippet.Description).HasMaxLength(500).IsRequired(false);
             entity.Property(snippet => snippet.Content).HasMaxLength(4000).IsRequired();
             entity.Property(snippet => snippet.CreatedAtUtc).IsRequired();
             entity.HasIndex(snippet => snippet.Category);
