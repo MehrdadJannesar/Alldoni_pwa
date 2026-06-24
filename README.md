@@ -65,6 +65,14 @@ Commandoni/App_Data/commandoni.db
 
 Runtime database files and local data-protection keys are intentionally excluded from Git.
 
+## Database Setup
+
+No database file is committed to the repository. After cloning, run the app once and it will create the `App_Data` folder and SQLite database automatically:
+
+```powershell
+dotnet run --project Commandoni\Commandoni.csproj
+```
+
 ## API
 
 The app exposes Minimal API endpoints under `/api/snippets`.
