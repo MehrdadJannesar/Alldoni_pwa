@@ -1,0 +1,182 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Command Library";
+}
+
+<section class="library-shell">
+    <div class="library-header">
+        <div>
+            <p class="eyebrow">Personal Command Library</p>
+            <h1>Commandoni</h1>
+        </div>
+        <form method="get" class="search-bar">
+            <input asp-for="Search" class="form-control" placeholder="Search names, categories, or text" />
+            <select asp-for="Category" class="form-select">
+                <option value="">All categories</option>
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category">@category</option>
+                }
+            </select>
+            <select asp-for="PageSize" class="form-select">
+                @foreach (var pageSize in Model.PageSizes)
+                {
+                    <option value="@pageSize">@pageSize / page</option>
+                }
+            </select>
+            <input type="hidden" name="PageNumber" value="1" />
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a asp-page="/Index" class="btn btn-outline-secondary">Reset</a>
+        </form>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="alert alert-success" role="status">@Model.StatusMessage</div>
+    }
+
+    <div class="library-grid">
+        <form method="post" class="snippet-form">
+            <h2>@(Model.IsEditing ? "Edit Command" : "Add Command")</h2>
+            @if (Model.IsEditing)
+            {
+                <input type="hidden" asp-for="EditId" />
+                <input type="hidden" asp-for="Search" />
+                <input type="hidden" asp-for="Category" />
+                <input type="hidden" asp-for="PageNumber" />
+                <input type="hidden" asp-for="PageSize" />
+            }
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Input.Name" class="form-label"></label>
+                <input asp-for="Input.Name" class="form-control" placeholder="Docker cleanup" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Category" class="form-label"></label>
+                <input asp-for="Input.Category" class="form-control" list="category-options" placeholder="Programming" />
+                <datalist id="category-options">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category"></option>
+                    }
+                </datalist>
+                <span asp-validation-for="Input.Category" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Input.Content" class="form-label">Command or snippet</label>
+                <textarea asp-for="Input.Content" class="form-control command-input" placeholder="Paste a command, script, note, or reusable text"></textarea>
+                <span asp-validation-for="Input.Content" class="text-danger"></span>
+            </div>
+            <div class="form-actions">
+                @if (Model.IsEditing)
+                {
+                    <button type="submit" asp-page-handler="Update" class="btn btn-dark">Update</button>
+                    <a asp-page="/Index" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize" class="btn btn-outline-secondary">Cancel</a>
+                }
+                else
+                {
+                    <button type="submit" asp-page-handler="Create" class="btn btn-dark">Save</button>
+                }
+            </div>
+        </form>
+
+        <section class="snippet-results" aria-label="Saved commands">
+            <div class="results-meta">
+                <h2>Saved Items</h2>
+                <span>
+                    @if (Model.TotalItems == 0)
+                    {
+                        @:0 items
+                    }
+                    else
+                    {
+                        @:@Model.FirstItemNumber-@Model.LastItemNumber of @Model.TotalItems
+                    }
+                </span>
+            </div>
+
+            @if (Model.Snippets.Count == 0)
+            {
+                <div class="empty-state">
+                    No commands found. Add your first command or clear the filters.
+                </div>
+            }
+            else
+            {
+                <div class="snippet-list">
+                    @foreach (var snippet in Model.Snippets)
+                    {
+                        <article class="snippet-card">
+                            <div class="snippet-card-header">
+                                <div>
+                                    <span class="category-pill">@snippet.Category</span>
+                                    <h3>@snippet.Name</h3>
+                                </div>
+                                <div class="snippet-actions">
+                                    <button type="button" class="btn btn-sm btn-outline-primary copy-button" data-copy-target="snippet-@snippet.Id">
+                                        Copy
+                                    </button>
+                                    <a class="btn btn-sm btn-outline-secondary" asp-page="/Index" asp-route-EditId="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize">
+                                        Edit
+                                    </a>
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <pre id="snippet-@snippet.Id"><code>@snippet.Content</code></pre>
+                        </article>
+                    }
+                </div>
+            }
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="pagination-bar" aria-label="Command list pages">
+                    <a class="btn btn-sm btn-outline-secondary @(Model.HasPreviousPage ? "" : "disabled")"
+                       asp-page="/Index"
+                       asp-route-Search="@Model.Search"
+                       asp-route-Category="@Model.Category"
+                       asp-route-PageNumber="@(Model.PageNumber - 1)"
+                       asp-route-PageSize="@Model.PageSize">Previous</a>
+                    <span>Page @Model.PageNumber of @Model.TotalPages</span>
+                    <a class="btn btn-sm btn-outline-secondary @(Model.HasNextPage ? "" : "disabled")"
+                       asp-page="/Index"
+                       asp-route-Search="@Model.Search"
+                       asp-route-Category="@Model.Category"
+                       asp-route-PageNumber="@(Model.PageNumber + 1)"
+                       asp-route-PageSize="@Model.PageSize">Next</a>
+                </nav>
+            }
+        </section>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll(".copy-button").forEach((button) => {
+            button.addEventListener("click", async () => {
+                const target = document.getElementById(button.dataset.copyTarget);
+                const originalText = button.textContent;
+
+                try {
+                    await navigator.clipboard.writeText(target.textContent.trim());
+                    button.textContent = "Copied";
+                    button.classList.replace("btn-outline-primary", "btn-success");
+                } catch {
+                    button.textContent = "Failed";
+                    button.classList.replace("btn-outline-primary", "btn-danger");
+                }
+
+                window.setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove("btn-success", "btn-danger");
+                    button.classList.add("btn-outline-primary");
+                }, 1400);
+            });
+        });
+    </script>
+}
