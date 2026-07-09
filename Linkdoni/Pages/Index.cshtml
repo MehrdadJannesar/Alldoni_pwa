@@ -1,0 +1,174 @@
+@page
+@model Linkdoni.Pages.IndexModel
+@{
+    ViewData["Title"] = "Link Library";
+}
+
+<section class="app-shell">
+    <header class="app-header">
+        <div>
+            <p class="eyebrow">PERSONAL LINK LIBRARY</p>
+            <h1>Linkdoni</h1>
+        </div>
+        <form method="get" class="search-bar">
+            <input asp-for="Search" class="form-control" placeholder="Search names, categories, descriptions, or URLs" />
+            <select asp-for="Category" class="form-select">
+                <option value="">All categories</option>
+                @foreach (var category in Model.Categories) { <option value="@category">@category</option> }
+            </select>
+            <select asp-for="PageSize" class="form-select" aria-label="Page size">
+                @foreach (var size in new[] { 5, 10, 20, 50 }) { <option value="@size">@size / page</option> }
+            </select>
+            <button class="btn btn-primary" type="submit">Search</button>
+            <a class="btn btn-outline-secondary" asp-page="/Index">Reset</a>
+        </form>
+    </header>
+
+    <div class="content-grid">
+        <aside class="editor-panel">
+            <h2 id="form-title">Add Link</h2>
+            <form method="post" asp-page-handler="Save" id="link-form">
+                <input asp-for="Input.Id" type="hidden" />
+                <label asp-for="Input.Name" class="form-label"></label>
+                <input asp-for="Input.Name" class="form-control" />
+                <span asp-validation-for="Input.Name" class="text-danger"></span>
+                <label asp-for="Input.Url" class="form-label"></label>
+                <input asp-for="Input.Url" class="form-control" placeholder="https://example.com" />
+                <span asp-validation-for="Input.Url" class="text-danger"></span>
+                <label asp-for="Input.Category" class="form-label"></label>
+                <div class="category-autocomplete" data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories)'>
+                    <input asp-for="Input.Category" class="form-control category-input" autocomplete="off" />
+                    <div class="category-suggestions" role="listbox"></div>
+                </div>
+                <span asp-validation-for="Input.Category" class="text-danger"></span>
+                <label asp-for="Input.Description" class="form-label"></label>
+                <textarea asp-for="Input.Description" class="form-control description-input" rows="3"></textarea>
+                <button class="btn btn-dark w-100" type="submit">Save</button>
+                <button class="btn btn-outline-secondary w-100 d-none" id="cancel-edit" type="button">Cancel edit</button>
+            </form>
+        </aside>
+
+        <main>
+            <div class="list-heading">
+                <h2>Saved Links</h2>
+                <span>@(Model.TotalCount == 0 ? "0" : $"{((Model.PageNumber - 1) * Model.PageSize) + 1}-{Math.Min(Model.PageNumber * Model.PageSize, Model.TotalCount)}") of @Model.TotalCount</span>
+            </div>
+            @if (Model.Links.Count == 0)
+            {
+                <div class="empty-state">No links found.</div>
+            }
+            <div class="link-list">
+                @foreach (var link in Model.Links)
+                {
+                    <article class="link-card">
+                        <div class="link-card-header">
+                            <div class="link-copy">
+                                <span class="category">@link.Category</span>
+                                <h3><a href="@link.Url" target="_blank" rel="noopener noreferrer">@link.Name</a></h3>
+                                @if (!string.IsNullOrWhiteSpace(link.Description)) { <p class="link-description">@link.Description</p> }
+                            </div>
+                            <div class="actions">
+                                <a class="btn btn-sm btn-outline-primary" href="@link.Url" target="_blank" rel="noopener noreferrer">Open</a>
+                                <button class="btn btn-sm btn-outline-secondary edit-link" type="button"
+                                        data-id="@link.Id" data-name="@link.Name" data-url="@link.Url"
+                                        data-category="@link.Category" data-description="@link.Description">Edit</button>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@link.Id"
+                                      data-delete-confirmation data-delete-name="@link.Name">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="link-url"><a href="@link.Url" target="_blank" rel="noopener noreferrer">@link.Url</a></div>
+                    </article>
+                }
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="pager" aria-label="Link pages">
+                    <a class="btn btn-outline-secondary @(Model.PageNumber == 1 ? "disabled" : "")"
+                       asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageSize="@Model.PageSize"
+                       asp-route-PageNumber="@(Model.PageNumber - 1)">Previous</a>
+                    <span>Page @Model.PageNumber of @Model.TotalPages</span>
+                    <a class="btn btn-outline-secondary @(Model.PageNumber == Model.TotalPages ? "disabled" : "")"
+                       asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageSize="@Model.PageSize"
+                       asp-route-PageNumber="@(Model.PageNumber + 1)">Next</a>
+                </nav>
+            }
+        </main>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.category-autocomplete').forEach(wrapper => {
+            const input = wrapper.querySelector('.category-input');
+            const suggestions = wrapper.querySelector('.category-suggestions');
+            const categories = JSON.parse(wrapper.dataset.categories || '[]');
+
+            const closeSuggestions = () => {
+                suggestions.innerHTML = '';
+                suggestions.classList.remove('is-open');
+            };
+
+            const termsMatch = (category, value) => {
+                const terms = value.toLowerCase().split(/\s+/).filter(Boolean);
+                const words = category.toLowerCase().split(/\s+/).filter(Boolean);
+                return terms.length > 0 && terms.every(term =>
+                    words.some(word => word.startsWith(term)) || category.toLowerCase().includes(term));
+            };
+
+            const renderSuggestions = () => {
+                const matches = categories
+                    .filter(category => termsMatch(category, input.value.trim()))
+                    .slice(0, 6);
+                suggestions.innerHTML = '';
+                if (matches.length === 0) {
+                    closeSuggestions();
+                    return;
+                }
+
+                matches.forEach(category => {
+                    const option = document.createElement('button');
+                    option.type = 'button';
+                    option.className = 'category-suggestion';
+                    option.textContent = category;
+                    option.addEventListener('click', () => {
+                        input.value = category;
+                        closeSuggestions();
+                        input.focus();
+                    });
+                    suggestions.appendChild(option);
+                });
+                suggestions.classList.add('is-open');
+            };
+
+            input.addEventListener('input', renderSuggestions);
+            input.addEventListener('focus', renderSuggestions);
+            document.addEventListener('click', event => {
+                if (!wrapper.contains(event.target)) closeSuggestions();
+            });
+        });
+
+        const fields = {
+            id: document.getElementById('Input_Id'),
+            name: document.getElementById('Input_Name'),
+            url: document.getElementById('Input_Url'),
+            category: document.getElementById('Input_Category'),
+            description: document.getElementById('Input_Description')
+        };
+        const cancel = document.getElementById('cancel-edit');
+        document.querySelectorAll('.edit-link').forEach(button => button.addEventListener('click', () => {
+            Object.keys(fields).forEach(key => fields[key].value = button.dataset[key] || '');
+            document.getElementById('form-title').textContent = 'Edit Link';
+            cancel.classList.remove('d-none');
+            document.querySelector('.editor-panel').scrollIntoView({ behavior: 'smooth' });
+        }));
+        cancel.addEventListener('click', () => {
+            document.getElementById('link-form').reset();
+            fields.id.value = '';
+            document.getElementById('form-title').textContent = 'Add Link';
+            cancel.classList.add('d-none');
+        });
+    </script>
+}

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Alldoni/Alldoni.csproj" />
+  <Project Path="Commandoni/Commandoni.csproj" />
+  <Project Path="Linkdoni/Linkdoni.csproj" />
+  <Project Path="Filedoni/Filedoni.csproj" />
+</Solution>

@@ -1,134 +1,117 @@
-# Commandoni
+# Alldoni
 
-Commandoni is a lightweight personal command and text snippet library built with ASP.NET Core Razor Pages, Minimal APIs, and SQLite.
+![Alldoni application hub](docs/alldoni-preview.png)
 
-It is designed for saving frequently used commands, scripts, notes, and reusable text with a name and category, then quickly searching and copying them when needed.
+Alldoni is a .NET 10 workspace containing a central Super App and three small personal library applications:
 
-## Features
+- **Alldoni** is the central hub for opening and checking the availability of every application.
+- **Commandoni** stores searchable commands and text snippets in SQLite.
+- **Linkdoni** stores searchable links with names, categories, and optional descriptions in SQLite.
+- **Filedoni** uploads, lists, downloads, searches, and deletes files in Arvan Cloud Object Storage.
 
-- Save commands or text snippets with a name, category, and content.
-- Search across names, categories, and snippet text.
-- Filter by category.
-- Paginated list with selectable page sizes.
-- Copy snippets to the clipboard from the UI.
-- Delete saved snippets.
-- Minimal API endpoints for programmatic access.
-- SQLite database storage, created automatically on first run.
-- `.slnx` solution format.
+All projects use Razor Pages for their interfaces. Commandoni and Linkdoni also expose Minimal API endpoints.
 
-## Tech Stack
+## Projects
 
-- .NET 10
-- ASP.NET Core Razor Pages
-- ASP.NET Core Minimal APIs
-- Entity Framework Core
-- SQLite
-- Bootstrap
+| Project | Storage | Purpose |
+| --- | --- | --- |
+| `Alldoni/` | Configuration | Central application hub |
+| `Commandoni/` | SQLite | Commands and reusable text |
+| `Linkdoni/` | SQLite | Important links and bookmarks |
+| `Filedoni/` | Arvan S3-compatible storage | Private file storage |
 
-## Project Structure
+The parent solution is `Alldoni.slnx`.
 
-```text
-Commandoni.slnx
-Commandoni/
-  Contracts/       API request and response models
-  Data/            EF Core DbContext
-  Models/          Command snippet entity
-  Pages/           Razor Pages UI
-  wwwroot/         CSS, JavaScript, and static assets
-```
+## Requirements
 
-## Run Locally
-
-```powershell
-dotnet restore Commandoni.slnx
-dotnet run --project Commandoni\Commandoni.csproj
-```
-
-The default launch profile uses:
-
-- HTTP: `http://localhost:5094`
-- HTTPS: `https://localhost:7087`
+- .NET 10 SDK
+- An Arvan Cloud Object Storage bucket for Filedoni
+- S3-compatible Arvan access and secret keys
 
 ## Build
 
 ```powershell
-dotnet build Commandoni.slnx
+dotnet restore Alldoni.slnx
+dotnet build Alldoni.slnx
 ```
 
-## Storage
+## Run
 
-The SQLite database is created automatically at:
-
-```text
-Commandoni/App_Data/commandoni.db
-```
-
-Runtime database files and local data-protection keys are intentionally excluded from Git.
-
-## Database Setup
-
-No database file is committed to the repository. After cloning, run the app once and it will create the `App_Data` folder and SQLite database automatically:
+Run each application in a separate terminal:
 
 ```powershell
+dotnet run --project Alldoni\Alldoni.csproj
 dotnet run --project Commandoni\Commandoni.csproj
+dotnet run --project Linkdoni\Linkdoni.csproj
+dotnet run --project Filedoni\Filedoni.csproj
 ```
 
-## Persian Font
+Open the Super App at `http://localhost:5050`. Its application URLs can be changed in `Alldoni/appsettings.json` or overridden through configuration.
 
-The UI is configured to use IRANSans. The web font files are stored in:
+Commandoni and Linkdoni create their `App_Data` directories and SQLite databases automatically on first run.
+
+## IIS
+
+Publish outputs can be installed as four always-running local IIS sites by opening PowerShell as Administrator and running:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\deploy-all-iis.ps1
+```
+
+The sites use ports `5050` (Alldoni), `5094` (Commandoni), `5165` (Linkdoni), and `5276` (Filedoni).
+
+Configure Filedoni on IIS without placing credentials in the repository:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure-filedoni-storage.ps1
+```
+
+The script stores restricted production settings under `C:\inetpub\Filedoni` and restarts the Filedoni application pool. The deployment script preserves this production file during future updates.
+
+## Configure Filedoni
+
+Keep real credentials outside `appsettings.json`. For local development:
+
+```powershell
+dotnet user-secrets --project Filedoni\Filedoni.csproj set "ArvanStorage:Endpoint" "https://s3.ir-thr-at1.arvanstorage.ir"
+dotnet user-secrets --project Filedoni\Filedoni.csproj set "ArvanStorage:Region" "ir-thr-at1"
+dotnet user-secrets --project Filedoni\Filedoni.csproj set "ArvanStorage:BucketName" "your-bucket-name"
+dotnet user-secrets --project Filedoni\Filedoni.csproj set "ArvanStorage:AccessKey" "your-access-key"
+dotnet user-secrets --project Filedoni\Filedoni.csproj set "ArvanStorage:SecretKey" "your-secret-key"
+```
+
+For a deployed instance, define the equivalent environment variables:
 
 ```text
-Commandoni/wwwroot/fonts/IRANSans/
+ArvanStorage__Endpoint
+ArvanStorage__Region
+ArvanStorage__BucketName
+ArvanStorage__AccessKey
+ArvanStorage__SecretKey
 ```
+
+Filedoni uses the `filedoni/files` prefix, allowing it to share a bucket without mixing its objects with other applications.
+
+## Deploy Filedoni
+
+The project includes a production Dockerfile:
+
+```powershell
+docker build -f Filedoni\Dockerfile -t filedoni .
+docker run --rm -p 8080:8080 `
+  -e ArvanStorage__BucketName="your-bucket-name" `
+  -e ArvanStorage__AccessKey="your-access-key" `
+  -e ArvanStorage__SecretKey="your-secret-key" `
+  filedoni
+```
+
+Deploy this image to an Arvan container application and configure the five `ArvanStorage__...` environment variables in the application settings. Do not bake credentials into the image.
 
 ## API
 
-The app exposes Minimal API endpoints under `/api/snippets`.
+- Commandoni: `/api/snippets`
+- Linkdoni: `/api/links`
+- Filedoni status: `/api/status`
+- Filedoni files: `/api/files`
 
-### List snippets
-
-```http
-GET /api/snippets
-GET /api/snippets?search=dotnet
-GET /api/snippets?category=Programming
-```
-
-### Get a snippet
-
-```http
-GET /api/snippets/{id}
-```
-
-### Create a snippet
-
-```http
-POST /api/snippets
-Content-Type: application/json
-
-{
-  "name": "Build solution",
-  "category": "Programming",
-  "description": "Build the Commandoni solution locally.",
-  "content": "dotnet build Commandoni.slnx"
-}
-```
-
-### Update a snippet
-
-```http
-PUT /api/snippets/{id}
-Content-Type: application/json
-
-{
-  "name": "Build solution",
-  "category": "Programming",
-  "description": "Build the Commandoni solution locally.",
-  "content": "dotnet build Commandoni.slnx"
-}
-```
-
-### Delete a snippet
-
-```http
-DELETE /api/snippets/{id}
-```
+Swagger is intentionally not enabled; the APIs are small companions to the Razor interfaces.

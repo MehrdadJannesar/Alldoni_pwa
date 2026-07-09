@@ -127,7 +127,8 @@
                                     <a class="btn btn-sm btn-outline-secondary" asp-page="/Index" asp-route-EditId="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize">
                                         Edit
                                     </a>
-                                    <form method="post" asp-page-handler="Delete" asp-route-id="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize">
+                                    <form method="post" asp-page-handler="Delete" asp-route-id="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize"
+                                          data-delete-confirmation data-delete-name="@snippet.Name">
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
                                     </form>
                                 </div>

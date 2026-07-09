@@ -1,0 +1,92 @@
+:root {
+  color-scheme: light;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_UltraLight.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Light.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum).woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Medium.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Bold.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+html { font-size: 15px; min-height: 100%; }
+body { background: #f6f7f9; color: #172033; display: flex; flex-direction: column; font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif; margin: 0; min-height: 100vh; }
+.navbar { min-height: 58px; }
+.navbar-brand { color: #172033; font-weight: 700; }
+.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+.page-container { flex: 1 0 auto; padding: 0 12px; width: 100%; }
+.app-shell { padding: 1.5rem 0 3rem; }
+.app-header { align-items: end; display: grid; gap: 1.25rem; grid-template-columns: minmax(220px, .65fr) minmax(620px, 1.35fr); margin-bottom: 1.5rem; }
+.eyebrow { color: #56637a; font-size: .78rem; font-weight: 800; letter-spacing: .08rem; margin: 0 0 .4rem; }
+h1 { font-size: clamp(2.25rem, 4vw, 3.5rem); font-weight: 800; line-height: 1; margin: 0; }
+h2 { font-size: 1.2rem; font-weight: 750; }
+.search-bar { display: grid; gap: .6rem; grid-template-columns: minmax(240px, 1fr) 180px 125px auto auto; }
+.content-grid { align-items: start; display: grid; gap: 1.4rem; grid-template-columns: minmax(280px, 380px) minmax(0, 1fr); }
+.editor-panel { background: #fff; border: 1px solid #dce1e8; border-radius: 8px; padding: 1.25rem; }
+.editor-panel form { display: grid; gap: .55rem; }
+.editor-panel .form-label { margin: .45rem 0 0; }
+.description-input, .link-description { font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif; }
+.category-autocomplete { position: relative; }
+.category-suggestions { background: #fff; border: 1px solid #d6dde8; border-radius: 8px; box-shadow: 0 14px 30px rgba(23, 32, 51, .14); display: none; left: 0; overflow: hidden; position: absolute; right: 0; top: calc(100% + .35rem); z-index: 1080; }
+.category-suggestions.is-open { display: grid; }
+.category-suggestion { background: transparent; border: 0; color: #172033; font: inherit; padding: .55rem .75rem; text-align: left; }
+.category-suggestion:hover, .category-suggestion:focus { background: #eef4ff; outline: 0; }
+.list-heading { align-items: center; display: flex; justify-content: space-between; margin: .25rem 0 1rem; }
+.link-list { display: grid; gap: .8rem; }
+.link-card { background: #fff; border: 1px solid #dfe4ea; border-radius: 8px; overflow: hidden; }
+.link-card-header { align-items: start; display: flex; gap: 1rem; justify-content: space-between; padding: 1rem 1rem .75rem; }
+.link-copy { min-width: 0; }
+.link-card h3 { font-size: 1.15rem; margin: .45rem 0 .25rem; overflow-wrap: anywhere; }
+.link-card h3 a { color: #172033; text-decoration: none; }
+.link-card p { color: #56637a; margin: .25rem 0; }
+.category { background: #e8f0ff; border: 1px solid #cfe0ff; border-radius: 999px; color: #194f9f; display: inline-block; font-size: .78rem; font-weight: 800; padding: .2rem .55rem; }
+.link-url { background: #101828; font-family: Consolas, "Courier New", monospace; padding: .75rem 1rem; }
+.link-url a { color: #f6f7f9; display: block; font-size: .82rem; overflow: hidden; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.actions { display: flex; flex-shrink: 0; gap: .45rem; }
+.empty-state { background: #fff; border: 1px dashed #b9c1cc; border-radius: 7px; padding: 3rem; text-align: center; }
+.pager { align-items: center; display: flex; gap: 1rem; justify-content: center; margin-top: 1.25rem; }
+footer { border-top: 1px solid #dce1e8; color: #657086; flex-shrink: 0; padding: 1rem 3vw; text-align: center; }
+footer p { margin: 0; }
+@media (max-width: 1100px) { .app-header { align-items: stretch; grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } .editor-panel { max-width: none; } }
+@media (max-width: 720px) {
+  .search-bar { grid-template-columns: 1fr 1fr; }
+  .search-bar input { grid-column: 1 / -1; }
+  .link-card-header { display: grid; }
+  .actions { flex-wrap: wrap; margin-top: 1rem; }
+}
+@media (max-width: 460px) { .search-bar { grid-template-columns: 1fr; } .search-bar input { grid-column: auto; } }

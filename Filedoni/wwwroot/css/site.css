@@ -1,0 +1,106 @@
+:root {
+  color-scheme: light;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_UltraLight.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Light.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum).woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Medium.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/IRANSans/IRANSansWeb(FaNum)_Bold.woff") format("woff");
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF;
+}
+
+html { font-size: 15px; min-height: 100%; }
+body { background: #f6f7f9; color: #172033; display: flex; flex-direction: column; font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif; margin: 0; min-height: 100vh; }
+.navbar { min-height: 58px; }
+.navbar-brand { color: #172033; font-weight: 700; }
+.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+.page-container { flex: 1 0 auto; padding: 0 12px; width: 100%; }
+.file-shell { padding: 1.5rem 0 3rem; }
+.file-header { align-items: end; display: grid; gap: 2rem; grid-template-columns: minmax(300px, 1fr) minmax(420px, .8fr); margin-bottom: 1.5rem; }
+.eyebrow { color: #59677d; font-size: .78rem; font-weight: 800; letter-spacing: .08rem; margin: 0 0 .45rem; }
+h1 { font-size: clamp(2.25rem, 4vw, 3.5rem); font-weight: 800; letter-spacing: 0; line-height: 1; margin: 0; }
+.subtitle { color: #647084; margin: .8rem 0 0; }
+h2 { font-size: 1.15rem; font-weight: 750; }
+.search-form { display: grid; gap: .6rem; grid-template-columns: minmax(220px, 1fr) auto auto; }
+.workspace { align-items: start; display: grid; gap: 1.4rem; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); }
+.upload-panel { background: #fff; border: 1px solid #dbe1e7; border-radius: 8px; padding: 1.25rem; }
+.upload-panel form { display: grid; gap: .8rem; }
+.upload-panel .form-label { margin: .25rem 0 -.35rem; }
+.description-input, .file-description { font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif; }
+.category-autocomplete { position: relative; }
+.category-suggestions { background: #fff; border: 1px solid #d6dde8; border-radius: 8px; box-shadow: 0 14px 30px rgba(23, 32, 51, .14); display: none; left: 0; overflow: hidden; position: absolute; right: 0; top: calc(100% + .35rem); z-index: 1080; }
+.category-suggestions.is-open { display: grid; }
+.category-suggestion { background: transparent; border: 0; color: #172033; font: inherit; padding: .55rem .75rem; text-align: left; }
+.category-suggestion:hover, .category-suggestion:focus { background: #eef4ff; outline: 0; }
+.drop-zone { align-items: center; border: 2px dashed #aab6c2; border-radius: 7px; cursor: pointer; display: flex; flex-direction: column; gap: .35rem; justify-content: center; min-height: 180px; padding: 1rem; text-align: center; }
+.drop-zone:hover { background: #eef4ff; border-color: #276ef1; }
+.upload-mark { align-items: center; background: #276ef1; border-radius: 50%; color: #fff; display: flex; font-size: 1.6rem; height: 42px; justify-content: center; width: 42px; }
+.drop-zone small { color: #687489; }
+.list-heading { align-items: center; display: flex; justify-content: space-between; margin: .25rem 0 1rem; }
+.file-list { display: grid; gap: .65rem; }
+.file-card { background: #fff; border: 1px solid #dbe1e7; border-radius: 7px; overflow: hidden; }
+.file-card-header { align-items: start; display: flex; gap: 1rem; justify-content: space-between; padding: 1rem 1rem .8rem; }
+.file-details { min-width: 0; }
+.file-details h3 { font-size: 1.15rem; font-weight: 800; margin: .35rem 0 0; overflow-wrap: anywhere; }
+.file-category { background: #e8f0ff; border: 1px solid #cfe0ff; border-radius: 999px; color: #194f9f; display: inline-block; font-size: .72rem; font-weight: 800; padding: .18rem .55rem; }
+.file-details .file-description { color: #59677d; font-size: .9rem; margin: .35rem 0 0; max-width: 56rem; overflow-wrap: anywhere; }
+.actions { display: flex; flex-shrink: 0; flex-wrap: wrap; gap: .45rem; justify-content: end; }
+.actions form { margin: 0; }
+.file-object-meta { align-items: center; background: #101828; color: #d7deea; display: flex; flex-wrap: wrap; gap: .55rem 1rem; min-height: 52px; padding: .75rem 1rem; }
+.file-object-meta > span:not(:last-child)::after { color: #62708a; content: "·"; margin-left: 1rem; }
+.file-extension { color: #a8c8ff; font-family: Consolas, "Courier New", monospace; font-size: .72rem; font-weight: 800; }
+.file-name { color: #fff; font-family: Consolas, "Courier New", monospace; overflow-wrap: anywhere; }
+.file-object-meta span { font-size: .82rem; }
+.edit-fields { display: grid; gap: .5rem; }
+.edit-fields .form-label { margin: .35rem 0 0; }
+.modal-title { font-size: 1.15rem; }
+.notice { border-radius: 7px; margin-bottom: 1rem; padding: .85rem 1rem; }
+.notice.warning { background: #fff3cd; border: 1px solid #e7cf7d; }
+.notice.error { background: #f8d7da; border: 1px solid #e1aeb3; }
+.notice.success { background: #d9eee6; border: 1px solid #9dcdbb; }
+.empty-state { background: #fff; border: 1px dashed #b8c1ca; border-radius: 7px; padding: 3rem; text-align: center; }
+footer { border-top: 1px solid #dbe1e7; color: #687489; flex-shrink: 0; padding: 1rem 3vw; text-align: center; }
+footer p { margin: 0; }
+@media (max-width: 1000px) { .file-header, .workspace { grid-template-columns: 1fr; } }
+@media (max-width: 640px) {
+  .search-form { grid-template-columns: 1fr 1fr; }
+  .search-form input { grid-column: 1 / -1; }
+  .file-card-header { display: grid; }
+  .actions { justify-content: start; }
+  .file-object-meta { align-items: start; display: grid; gap: .35rem; }
+  .file-object-meta > span:not(:last-child)::after { content: none; }
+}

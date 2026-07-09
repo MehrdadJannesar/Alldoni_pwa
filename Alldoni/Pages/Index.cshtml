@@ -1,0 +1,79 @@
+@page
+@model Alldoni.Pages.IndexModel
+@{
+    ViewData["Title"] = "App Hub";
+}
+
+<section class="hub-shell">
+    <header class="hub-header">
+        <div>
+            <p class="eyebrow">PERSONAL TOOLKIT</p>
+            <h1>Alldoni</h1>
+            <p class="intro">Your commands, links, and files in one place.</p>
+        </div>
+        <div class="hub-summary" aria-label="Application summary">
+            <strong>@Model.Applications.Count</strong>
+            <span>connected applications</span>
+        </div>
+    </header>
+
+    <div class="app-grid">
+        @foreach (var application in Model.Applications)
+        {
+            <article class="app-card app-@application.Key">
+                <div class="card-topline">
+                    <span class="app-mark" aria-hidden="true">@application.Name[..1]</span>
+                    <span class="status checking" data-app-status="@application.Key">
+                        <span class="status-dot"></span>
+                        <span class="status-label">Checking</span>
+                    </span>
+                </div>
+                <div class="card-content">
+                    <p class="storage">@application.Storage</p>
+                    <h2>@application.Name</h2>
+                    <p>@application.Description</p>
+                </div>
+                <a class="open-app" href="@application.Url">
+                    Open @application.Name
+                    <span aria-hidden="true">&rarr;</span>
+                </a>
+            </article>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const statusElements = new Map(
+            [...document.querySelectorAll('[data-app-status]')]
+                .map(element => [element.dataset.appStatus, element])
+        );
+
+        async function refreshStatuses() {
+            try {
+                const response = await fetch('/api/apps', { cache: 'no-store' });
+                if (!response.ok) throw new Error(`Status request failed: ${response.status}`);
+
+                const applications = await response.json();
+                applications.forEach(application => {
+                    const element = statusElements.get(application.key);
+                    if (!element) return;
+
+                    element.classList.remove('checking', 'online', 'offline');
+                    element.classList.add(application.available ? 'online' : 'offline');
+                    element.querySelector('.status-label').textContent =
+                        application.available ? 'Available' : 'Offline';
+                });
+            } catch {
+                statusElements.forEach(element => {
+                    element.classList.remove('checking', 'online');
+                    element.classList.add('offline');
+                    element.querySelector('.status-label').textContent = 'Offline';
+                });
+            }
+        }
+
+        refreshStatuses();
+        window.setInterval(refreshStatuses, 5000);
+    </script>
+}
