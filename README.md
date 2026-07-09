@@ -50,24 +50,6 @@ Open the Super App at `http://localhost:5050`. Its application URLs can be chang
 
 Commandoni and Linkdoni create their `App_Data` directories and SQLite databases automatically on first run.
 
-## IIS
-
-Publish outputs can be installed as four always-running local IIS sites by opening PowerShell as Administrator and running:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\deploy-all-iis.ps1
-```
-
-The sites use ports `5050` (Alldoni), `5094` (Commandoni), `5165` (Linkdoni), and `5276` (Filedoni).
-
-Configure Filedoni on IIS without placing credentials in the repository:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\configure-filedoni-storage.ps1
-```
-
-The script stores restricted production settings under `C:\inetpub\Filedoni` and restarts the Filedoni application pool. The deployment script preserves this production file during future updates.
-
 ## Configure Filedoni
 
 Keep real credentials outside `appsettings.json`. For local development:
