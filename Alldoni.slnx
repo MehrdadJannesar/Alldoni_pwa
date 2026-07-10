@@ -3,4 +3,5 @@
   <Project Path="Commandoni/Commandoni.csproj" />
   <Project Path="Linkdoni/Linkdoni.csproj" />
   <Project Path="Filedoni/Filedoni.csproj" />
+  <Project Path="Notesdoni/Notesdoni.csproj" />
 </Solution>

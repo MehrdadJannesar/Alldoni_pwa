@@ -86,7 +86,7 @@ h1 {
 .app-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 .app-card {
   background: var(--paper);
@@ -110,6 +110,7 @@ h1 {
 .app-commandoni::before { background: #276ef1; }
 .app-linkdoni::before { background: #158066; }
 .app-filedoni::before { background: #d25b37; }
+.app-notesdoni::before { background: #7c3aed; }
 .card-topline { align-items: center; display: flex; justify-content: space-between; }
 .app-mark {
   align-items: center;

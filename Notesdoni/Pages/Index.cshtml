@@ -1,15 +1,15 @@
 @page
-@model Filedoni.Pages.IndexModel
+@model Notesdoni.Pages.IndexModel
 @{
-    ViewData["Title"] = "File Storage";
+    ViewData["Title"] = "Notes Storage";
 }
 
 <section class="file-shell">
     <header class="file-header">
         <div>
-            <p class="eyebrow">ARVAN CLOUD FILE STORAGE</p>
-            <h1>Filedoni</h1>
-            <p class="subtitle">Keep important files available from one clean, private library.</p>
+            <p class="eyebrow">ARVAN CLOUD NOTE FILE STORAGE</p>
+            <h1>Notesdoni</h1>
+            <p class="subtitle">Keep note attachments and reference files available from one clean, private library.</p>
         </div>
         <form method="get" class="search-form">
             <input asp-for="Search" class="form-control" placeholder="Search titles, categories, descriptions, or file names" />
@@ -27,39 +27,39 @@
 
     <div class="workspace">
         <aside class="upload-panel">
-            <h2>Upload File</h2>
+            <h2>Save Note</h2>
             <form method="post" asp-page-handler="Upload" enctype="multipart/form-data">
                 <label asp-for="Title" class="form-label"></label>
-                <input asp-for="Title" class="form-control" placeholder="Project brief" />
+                <input asp-for="Title" class="form-control" placeholder="Meeting notes" />
                 <span asp-validation-for="Title" class="text-danger"></span>
                 <label asp-for="Category" class="form-label"></label>
                 <div class="category-autocomplete" data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories)'>
-                    <input asp-for="Category" class="form-control category-input" autocomplete="off" placeholder="Documents" />
+                    <input asp-for="Category" class="form-control category-input" autocomplete="off" placeholder="Personal" />
                     <div class="category-suggestions" role="listbox"></div>
                 </div>
                 <span asp-validation-for="Category" class="text-danger"></span>
                 <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control description-input" rows="3" placeholder="Add a short description for this file"></textarea>
+                <textarea asp-for="Description" class="form-control description-input" rows="3" placeholder="Add a short description for this note file"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
                 <label asp-for="Upload" class="drop-zone" id="drop-zone">
                     <span class="upload-mark">+</span>
-                    <strong id="file-label">Choose a file</strong>
-                    <small>Maximum @Filedoni.Pages.IndexModel.FormatSize(Model.MaxUploadBytes)</small>
+                    <strong id="file-label">Attach a file</strong>
+                    <small>Optional · maximum @Notesdoni.Pages.IndexModel.FormatSize(Model.MaxUploadBytes)</small>
                 </label>
                 <input asp-for="Upload" type="file" hidden />
                 <span asp-validation-for="Upload" class="text-danger"></span>
-                <button class="btn btn-dark w-100" type="submit" disabled="@(!Model.StorageConfigured)">Upload</button>
+                <button class="btn btn-dark w-100" type="submit" disabled="@(!Model.StorageConfigured)">Save</button>
             </form>
         </aside>
 
         <main>
             <div class="list-heading">
-                <h2>Stored Files</h2>
+                <h2>Stored Notes</h2>
                 <span>@Model.Files.Count file@(Model.Files.Count == 1 ? "" : "s")</span>
             </div>
             @if (Model.StorageConfigured && Model.Files.Count == 0 && Model.ErrorMessage is null)
             {
-                <div class="empty-state">No files found.</div>
+                <div class="empty-state">No note files found.</div>
             }
             <div class="file-list">
                 @foreach (var file in Model.Files)
@@ -72,7 +72,14 @@
                                 @if (!string.IsNullOrWhiteSpace(file.Description)) { <p class="file-description">@file.Description</p> }
                             </div>
                             <div class="actions">
-                                <a class="btn btn-sm btn-outline-primary" asp-page-handler="Download" asp-route-key="@file.Key">Download</a>
+                                @if (file.HasAttachment)
+                                {
+                                    <a class="btn btn-sm btn-outline-primary" asp-page-handler="Download" asp-route-key="@file.Key">Download</a>
+                                }
+                                else
+                                {
+                                    <span class="btn btn-sm btn-outline-secondary disabled" aria-disabled="true">No file</span>
+                                }
                                 <button class="btn btn-sm btn-outline-secondary edit-file" type="button"
                                         data-bs-toggle="modal" data-bs-target="#edit-file-modal"
                                         data-key="@file.Key" data-title="@file.Title"
@@ -85,9 +92,17 @@
                             </div>
                         </div>
                         <div class="file-object-meta">
-                            <span class="file-extension">@System.IO.Path.GetExtension(file.FileName).TrimStart('.').ToUpperInvariant()</span>
-                            <span class="file-name">@file.FileName</span>
-                            <span>@Filedoni.Pages.IndexModel.FormatSize(file.Size)</span>
+                            @if (file.HasAttachment)
+                            {
+                                <span class="file-extension">@System.IO.Path.GetExtension(file.FileName).TrimStart('.').ToUpperInvariant()</span>
+                                <span class="file-name">@file.FileName</span>
+                                <span>@Notesdoni.Pages.IndexModel.FormatSize(file.Size)</span>
+                            }
+                            else
+                            {
+                                <span class="file-extension">NOTE</span>
+                                <span class="file-name">No attachment</span>
+                            }
                             <span>@(file.LastModified?.LocalDateTime.ToString("yyyy-MM-dd HH:mm") ?? "Unknown date")</span>
                         </div>
                     </article>
@@ -101,22 +116,22 @@
             <div class="modal-content">
                 <form method="post" asp-page-handler="Edit">
                     <div class="modal-header">
-                        <h2 class="modal-title" id="edit-file-title">Edit File Details</h2>
+                        <h2 class="modal-title" id="edit-file-title">Edit Note File Details</h2>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body edit-fields">
                         <input asp-for="Edit!.Key" type="hidden" />
                         <label asp-for="Edit!.Title" class="form-label"></label>
-                        <input asp-for="Edit!.Title" class="form-control" placeholder="Project brief" />
+                        <input asp-for="Edit!.Title" class="form-control" placeholder="Meeting notes" />
                         <span asp-validation-for="Edit!.Title" class="text-danger"></span>
                         <label asp-for="Edit!.Category" class="form-label"></label>
                         <div class="category-autocomplete" data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories)'>
-                            <input asp-for="Edit!.Category" class="form-control category-input" autocomplete="off" placeholder="Documents" />
+                            <input asp-for="Edit!.Category" class="form-control category-input" autocomplete="off" placeholder="Personal" />
                             <div class="category-suggestions" role="listbox"></div>
                         </div>
                         <span asp-validation-for="Edit!.Category" class="text-danger"></span>
                         <label asp-for="Edit!.Description" class="form-label"></label>
-                        <textarea asp-for="Edit!.Description" class="form-control description-input" rows="4" placeholder="Add a short description for this file"></textarea>
+                        <textarea asp-for="Edit!.Description" class="form-control description-input" rows="4" placeholder="Add a short description for this note file"></textarea>
                         <span asp-validation-for="Edit!.Description" class="text-danger"></span>
                     </div>
                     <div class="modal-footer">
@@ -183,7 +198,7 @@
 
         const input = document.getElementById('Upload');
         const label = document.getElementById('file-label');
-        input.addEventListener('change', () => label.textContent = input.files[0]?.name || 'Choose a file');
+        input.addEventListener('change', () => label.textContent = input.files[0]?.name || 'Attach a file');
 
         document.querySelectorAll('.edit-file').forEach(button => {
             button.addEventListener('click', () => {

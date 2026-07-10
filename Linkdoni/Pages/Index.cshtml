@@ -30,19 +30,19 @@
             <form method="post" asp-page-handler="Save" id="link-form">
                 <input asp-for="Input.Id" type="hidden" />
                 <label asp-for="Input.Name" class="form-label"></label>
-                <input asp-for="Input.Name" class="form-control" />
+                <input asp-for="Input.Name" class="form-control" placeholder="OpenAI docs" />
                 <span asp-validation-for="Input.Name" class="text-danger"></span>
                 <label asp-for="Input.Url" class="form-label"></label>
                 <input asp-for="Input.Url" class="form-control" placeholder="https://example.com" />
                 <span asp-validation-for="Input.Url" class="text-danger"></span>
                 <label asp-for="Input.Category" class="form-label"></label>
                 <div class="category-autocomplete" data-categories='@System.Text.Json.JsonSerializer.Serialize(Model.Categories)'>
-                    <input asp-for="Input.Category" class="form-control category-input" autocomplete="off" />
+                    <input asp-for="Input.Category" class="form-control category-input" autocomplete="off" placeholder="Research" />
                     <div class="category-suggestions" role="listbox"></div>
                 </div>
                 <span asp-validation-for="Input.Category" class="text-danger"></span>
                 <label asp-for="Input.Description" class="form-label"></label>
-                <textarea asp-for="Input.Description" class="form-control description-input" rows="3"></textarea>
+                <textarea asp-for="Input.Description" class="form-control description-input" rows="3" placeholder="Why is this link useful?"></textarea>
                 <button class="btn btn-dark w-100" type="submit">Save</button>
                 <button class="btn btn-outline-secondary w-100 d-none" id="cancel-edit" type="button">Cancel edit</button>
             </form>
