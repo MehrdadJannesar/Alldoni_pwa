@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Musicdoni</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css?v=20260702-7">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Musicdoni navigation">
+      <div class="brand">
+        <span class="brand-mark">M</span>
+        <span>Musicdoni</span>
+      </div>
+      <button type="button" class="nav-item active" data-filter="all">Home</button>
+      <button type="button" class="nav-item" data-filter="liked">Liked Songs</button>
+      <button type="button" class="nav-item" data-filter="uploads">Fresh Uploads</button>
+      <div class="playlist-panel">
+        <div class="panel-title">Playlists</div>
+        <div id="playlistList" class="playlist-list"></div>
+        <form id="playlistForm" class="playlist-form">
+          <input name="name" maxlength="48" placeholder="New playlist" autocomplete="off">
+          <button type="submit" title="Create playlist">+</button>
+        </form>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1>Musicdoni</h1>
+          <p id="storageStatus" class="sr-only" aria-live="polite"></p>
+        </div>
+        <div class="top-actions">
+          <input id="searchInput" type="search" placeholder="Search songs, artists, albums">
+          <span id="storageUsage" class="storage-usage">Storage: checking...</span>
+          <button id="openUpload" class="primary" type="button">Upload</button>
+        </div>
+      </header>
+
+      <section class="hero-band">
+        <div>
+          <p class="eyebrow">CloudBeat</p>
+          <h2>Your music collection, available everywhere</h2>
+        </div>
+        <div class="signal-bars" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="section-head">
+          <div>
+            <h2 id="sectionTitle">Library</h2>
+            <span id="trackCount">0 tracks</span>
+          </div>
+          <div id="selectionActions" class="selection-actions" aria-live="polite" hidden>
+            <span id="selectionCount">0 selected</span>
+            <button id="selectAllBtn" type="button" hidden>Select All</button>
+            <button id="cancelSelectionBtn" type="button" hidden>Cancel All</button>
+            <button id="deleteSelectedBtn" type="button" disabled>Delete selected</button>
+            <div id="deleteProgress" class="delete-progress" hidden>
+              <span id="deleteProgressText">Deleting...</span>
+              <div class="delete-progress-bar" aria-hidden="true"><span></span></div>
+            </div>
+          </div>
+        </div>
+        <div id="trackGrid" class="track-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  
+  <div class="copyright-notice">
+    <p>&copy; <span id="copyrightYear"></span> <a href="https://mehrdadjannesar.com/" target="_blank" rel="noopener noreferrer">Mehrdad Jannesar</a>. All Rights Reserved.</p>
+  </div>
+  <footer class="player">
+    <div class="now-playing">
+      <div id="nowCover" class="mini-cover"></div>
+      <div>
+        <strong id="nowTitle">Nothing playing</strong>
+        <span id="nowArtist">Upload a track to start</span>
+      </div>
+    </div>
+    <div class="transport">
+      <div class="transport-buttons">
+        <button id="shuffleBtn" type="button" title="Shuffle" aria-label="Shuffle" aria-pressed="false">Shuffle</button>
+        <button id="prevBtn" type="button" title="Previous">Prev</button>
+        <button id="playBtn" class="play" type="button" title="Play or pause">Play</button>
+        <button id="nextBtn" type="button" title="Next">Next</button>
+        <button id="repeatBtn" type="button" title="Repeat off" aria-label="Repeat off" aria-pressed="false">Repeat</button>
+      </div>
+      <audio id="audio" preload="metadata"></audio>
+      <div class="control-row">
+        <div class="seek-row">
+          <span id="currentTime">0:00</span>
+          <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Seek">
+          <span id="durationTime">0:00</span>
+        </div>
+        <div class="volume">
+          <span>Vol</span>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Volume">
+          <strong id="volumeValue">85%</strong>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <dialog id="uploadDialog">
+    <form id="uploadForm" class="upload-form">
+      <div class="dialog-head">
+        <h2>Upload track</h2>
+        <button id="closeUpload" type="button" title="Close">Close</button>
+      </div>
+      <label>Audio files<input name="audio" type="file" accept="audio/*" multiple required></label>
+      <label>Cover art<input name="cover" type="file" accept="image/*"></label>
+      <div class="form-row">
+        <label>Title<input name="title" autocomplete="off"></label>
+        <label>Artist<input name="artist" autocomplete="off"></label>
+      </div>
+      <div class="form-row">
+        <label>Album<input name="album" autocomplete="off"></label>
+        <label>Genre<input name="genre" autocomplete="off"></label>
+      </div>
+      <button id="uploadSubmit" class="primary" type="submit">Upload to CloudBeat</button>
+      <div id="uploadProgress" class="upload-progress" hidden>
+        <div class="upload-progress-bar" aria-hidden="true"><span id="uploadProgressFill"></span></div>
+        <div class="upload-progress-meta">
+          <span id="uploadProgressText">0 of 0</span>
+          <span id="uploadProgressFile"></span>
+        </div>
+      </div>
+      <p id="uploadMessage"></p>
+    </form>
+  </dialog>
+  <dialog id="confirmDialog" class="confirm-dialog">
+    <form method="dialog" class="confirm-panel">
+      <div class="confirm-icon" aria-hidden="true"></div>
+      <div>
+        <h2 id="confirmTitle">Confirm action</h2>
+        <p id="confirmMessage">Are you sure?</p>
+      </div>
+      <div class="confirm-actions">
+        <button id="confirmCancel" type="button" class="secondary-action">Cancel</button>
+        <button id="confirmAccept" type="button" class="danger-action">Delete</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      const map = { '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9' };
+      const normalize = value => value.replace(/[۰-۹٠-٩]/g, digit => map[digit]);
+      const walk = root => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode: node => ['SCRIPT', 'STYLE'].includes(node.parentElement?.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+        });
+        while (walker.nextNode()) walker.currentNode.nodeValue = normalize(walker.currentNode.nodeValue);
+      };
+      walk(document.body);
+      new MutationObserver(items => items.forEach(item => item.type === 'characterData' ? item.target.nodeValue = normalize(item.target.nodeValue) : item.addedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && walk(node)))).observe(document.body, { childList: true, subtree: true, characterData: true });
+    })();
+  </script>
+  <script src="/app.js?v=20260702-7"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -64,21 +64,21 @@
                         <div class="link-card-header">
                             <div class="link-copy">
                                 <span class="category">@link.Category</span>
-                                <h3><a href="@link.Url" target="_blank" rel="noopener noreferrer">@link.Name</a></h3>
-                                @if (!string.IsNullOrWhiteSpace(link.Description)) { <p class="link-description">@link.Description</p> }
+                                <h3>@link.Name</h3>
+                                @if (!string.IsNullOrWhiteSpace(Model.Plain(link.Description))) { <p class="link-description">sha256:@Model.Fingerprint(link.Description)</p> }
                             </div>
                             <div class="actions">
-                                <a class="btn btn-sm btn-outline-primary" href="@link.Url" target="_blank" rel="noopener noreferrer">Open</a>
+                                <button class="btn btn-sm btn-outline-primary reveal-link" type="button" data-id="@link.Id">Reveal details</button>
                                 <button class="btn btn-sm btn-outline-secondary edit-link" type="button"
-                                        data-id="@link.Id" data-name="@link.Name" data-url="@link.Url"
-                                        data-category="@link.Category" data-description="@link.Description">Edit</button>
+                                        data-id="@link.Id" data-name="@link.Name" data-url="@Model.Plain(link.Url)"
+                                        data-category="@link.Category" data-description="@Model.Plain(link.Description)">Edit</button>
                                 <form method="post" asp-page-handler="Delete" asp-route-id="@link.Id"
                                       data-delete-confirmation data-delete-name="@link.Name">
                                     <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
                                 </form>
                             </div>
                         </div>
-                        <div class="link-url"><a href="@link.Url" target="_blank" rel="noopener noreferrer">@link.Url</a></div>
+                        <div class="link-url" id="link-url-@link.Id">sha256:@Model.Fingerprint(link.Url)</div>
                     </article>
                 }
             </div>
@@ -157,6 +157,24 @@
             category: document.getElementById('Input_Category'),
             description: document.getElementById('Input_Description')
         };
+        async function revealLink(button) {
+            const password = window.prompt("Enter the admin password to reveal and open this link:");
+            if (!password) return;
+            const response = await fetch(`/api/links/${button.dataset.id}/reveal`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password })
+            });
+            if (!response.ok) {
+                window.alert('The password is incorrect or the link was not found.');
+                return;
+            }
+            const item = await response.json();
+            const holder = document.getElementById(`link-url-${button.dataset.id}`);
+            holder.innerHTML = `<a href="${item.url}" target="_blank" rel="noopener noreferrer">${item.url}</a>`;
+            window.open(item.url, '_blank', 'noopener,noreferrer');
+        }
+        document.querySelectorAll('.reveal-link').forEach(button => button.addEventListener('click', () => revealLink(button)));
         const cancel = document.getElementById('cancel-edit');
         document.querySelectorAll('.edit-link').forEach(button => button.addEventListener('click', () => {
             Object.keys(fields).forEach(key => fields[key].value = button.dataset[key] || '');

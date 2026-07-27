@@ -1,16 +1,14 @@
 using Alldoni.Models;
 using Alldoni.Services;
-using Microsoft.AspNetCore.DataProtection;
+using Alldoni.Shared.Security;
 
 var builder = WebApplication.CreateBuilder(args);
-var keysDirectory = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Keys");
-Directory.CreateDirectory(keysDirectory);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysDirectory))
-    .SetApplicationName("Alldoni");
+builder.Services.AddAlldoniSecurity(builder.Environment);
 builder.Services.Configure<AppDirectoryOptions>(
     builder.Configuration.GetSection(AppDirectoryOptions.SectionName));
 builder.Services.AddScoped<AppAvailabilityService>();
@@ -29,7 +27,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAlldoniSecurity();
 
 app.MapStaticAssets();
 app.MapRazorPages()

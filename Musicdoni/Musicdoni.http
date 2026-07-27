@@ -1,0 +1,6 @@
+@Musicdoni_HostAddress = http://localhost:5100
+
+GET {{Musicdoni_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

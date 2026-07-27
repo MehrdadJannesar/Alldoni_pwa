@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Alldoni.Shared.Security;
 using Commandoni.Data;
 using Commandoni.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Commandoni.Pages;
 
-public class IndexModel(CommandLibraryDbContext db) : PageModel
+public class IndexModel(CommandLibraryDbContext db, SecureValueProtector secureValues) : PageModel
 {
     private static readonly int[] AllowedPageSizes = [5, 10, 20, 50];
 
@@ -69,8 +70,8 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
         {
             Name = Input.Name.Trim(),
             Category = Input.Category.Trim(),
-            Description = Input.Description?.Trim() ?? string.Empty,
-            Content = Input.Content.Trim(),
+            Description = secureValues.Protect(Input.Description),
+            Content = secureValues.Protect(Input.Content),
             CreatedAtUtc = DateTime.UtcNow
         };
 
@@ -103,8 +104,8 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
 
         snippet.Name = Input.Name.Trim();
         snippet.Category = Input.Category.Trim();
-        snippet.Description = Input.Description?.Trim() ?? string.Empty;
-        snippet.Content = Input.Content.Trim();
+        snippet.Description = secureValues.Protect(Input.Description);
+        snippet.Content = secureValues.Protect(Input.Content);
         snippet.UpdatedAtUtc = DateTime.UtcNow;
 
         await db.SaveChangesAsync(cancellationToken);
@@ -184,12 +185,16 @@ public class IndexModel(CommandLibraryDbContext db) : PageModel
                 {
                     Name = editSnippet.Name,
                     Category = editSnippet.Category,
-                    Description = editSnippet.Description,
-                    Content = editSnippet.Content
+                    Description = secureValues.Unprotect(editSnippet.Description),
+                    Content = secureValues.Unprotect(editSnippet.Content)
                 };
             }
         }
     }
+
+    public string Fingerprint(string? value) => secureValues.Fingerprint(value);
+
+    public string Plain(string? value) => secureValues.Unprotect(value);
 
     public class CommandSnippetForm
     {

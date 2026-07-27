@@ -4,4 +4,7 @@
   <Project Path="Linkdoni/Linkdoni.csproj" />
   <Project Path="Filedoni/Filedoni.csproj" />
   <Project Path="Notesdoni/Notesdoni.csproj" />
+  <Project Path="Passworddoni/Passworddoni.csproj" />
+  <Project Path="Musicdoni/Musicdoni.csproj" />
+  <Project Path="Alldoni.Shared/Alldoni.Shared.csproj" />
 </Solution>

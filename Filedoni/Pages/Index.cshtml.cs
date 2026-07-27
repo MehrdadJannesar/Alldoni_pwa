@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Alldoni.Shared.Security;
 using Filedoni.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,7 +10,9 @@ namespace Filedoni.Pages;
 public sealed class IndexModel(
     IFileStorage storage,
     IOptions<ArvanStorageOptions> options,
-    ILogger<IndexModel> logger) : PageModel
+    ILogger<IndexModel> logger,
+    SecureValueProtector secureValues,
+    PasswordStore passwordStore) : PageModel
 {
     [BindProperty]
     public IFormFile? Upload { get; set; }
@@ -83,9 +86,9 @@ public sealed class IndexModel(
         await using var stream = upload.OpenReadStream();
         await storage.UploadAsync(
             upload.FileName,
-            Title,
+            secureValues.Protect(Title),
             Category,
-            Description,
+            secureValues.Protect(Description),
             stream,
             upload.ContentType,
             cancellationToken);
@@ -93,8 +96,9 @@ public sealed class IndexModel(
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnGetDownloadAsync(string key, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnGetDownloadAsync(string key, string password, CancellationToken cancellationToken)
     {
+        if (!passwordStore.Verify(password)) return Unauthorized();
         var download = await storage.OpenReadAsync(key, cancellationToken);
         if (download is null) return NotFound();
         HttpContext.Response.RegisterForDispose(download);
@@ -126,9 +130,9 @@ public sealed class IndexModel(
 
         await storage.UpdateMetadataAsync(
             Edit!.Key,
-            Edit.Title,
+            secureValues.Protect(Edit.Title),
             Edit.Category,
-            Edit.Description,
+            secureValues.Protect(Edit.Description),
             cancellationToken);
         TempData["Message"] = "File details updated.";
         return RedirectToPage(new { Search });
@@ -155,9 +159,9 @@ public sealed class IndexModel(
                 ? files
                 : files.Where(file =>
                     file.FileName.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)
-                    || file.Title.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)
+                    || secureValues.Unprotect(file.Title).Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)
                     || file.Category.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)
-                    || (file.Description?.Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase) ?? false))
+                    || (secureValues.Unprotect(file.Description).Contains(Search.Trim(), StringComparison.OrdinalIgnoreCase)))
                     .ToList();
         }
         catch (Exception exception) when (exception is HttpRequestException or InvalidOperationException)
@@ -166,6 +170,10 @@ public sealed class IndexModel(
             ErrorMessage = exception.Message;
         }
     }
+
+    public string Fingerprint(string? value) => secureValues.Fingerprint(value);
+
+    public string Plain(string? value) => secureValues.Unprotect(value);
 
     public static string FormatSize(long bytes)
     {

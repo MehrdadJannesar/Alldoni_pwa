@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Commandoni</title>
     <script type="importmap"></script>
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="manifest" href="~/manifest.webmanifest" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Commandoni.styles.css" asp-append-version="true" />
@@ -15,7 +16,7 @@
         <nav class="navbar navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container d-flex justify-content-between">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Commandoni</a>
-                <a class="btn btn-sm btn-outline-secondary" href="http://localhost:5050/">Back to Alldoni</a>
+                <a class="btn btn-sm btn-outline-secondary" href="http://localhost:5051/">Back to Alldoni</a>
             </div>
         </nav>
     </header>
@@ -53,6 +54,21 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        (() => {
+            const map = { '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9' };
+            const normalize = value => value.replace(/[۰-۹٠-٩]/g, digit => map[digit]);
+            const walk = root => {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode: node => ['SCRIPT', 'STYLE'].includes(node.parentElement?.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+                });
+                while (walker.nextNode()) walker.currentNode.nodeValue = normalize(walker.currentNode.nodeValue);
+            };
+            walk(document.body);
+            new MutationObserver(items => items.forEach(item => item.type === 'characterData' ? item.target.nodeValue = normalize(item.target.nodeValue) : item.addedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && walk(node)))).observe(document.body, { childList: true, subtree: true, characterData: true });
+        })();
+    </script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');</script>
     <script>
         (() => {
             const modalElement = document.getElementById('delete-confirmation-modal');

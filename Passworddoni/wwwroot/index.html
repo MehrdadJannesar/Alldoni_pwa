@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Passworddoni</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="library-shell">
+    <header class="library-header">
+      <div>
+        <p class="eyebrow">Personal Password Vault</p>
+        <h1>Passworddoni</h1>
+      </div>
+      <div class="search-bar">
+        <input id="searchInput" class="form-control" placeholder="Search titles, usernames, or notes" autocomplete="off">
+        <button id="searchButton" class="btn btn-primary" type="button">Search</button>
+        <button id="resetButton" class="btn btn-outline-secondary" type="button">Reset</button>
+        <form method="post" action="/logout"><button class="btn btn-outline-secondary" type="submit">Sign out</button></form>
+      </div>
+    </header>
+
+    <section class="library-grid">
+      <form id="passwordForm" class="password-form">
+        <h2>Add Password</h2>
+        <label>Title<input class="form-control" name="title" required autocomplete="off" placeholder="Email account"></label>
+        <label>Username<input class="form-control" name="username" autocomplete="off" placeholder="admin@example.com"></label>
+        <label>Password<input class="form-control" name="password" type="password" required autocomplete="new-password" placeholder="Enter a strong password"></label>
+        <label>Note<textarea class="form-control note-input" name="note" rows="4" placeholder="Where is this password used?"></textarea></label>
+        <button class="btn btn-dark" type="submit">Save</button>
+        <p id="message"></p>
+      </form>
+      <section class="password-results" aria-label="Saved passwords">
+        <div class="results-meta">
+          <h2>Saved Items</h2>
+          <span id="resultCount">0 items</span>
+        </div>
+        <div id="list" class="password-list"></div>
+      </section>
+    </section>
+  </main>
+  <dialog id="revealDialog">
+    <form method="dialog" class="dialog">
+      <h2>Revealed details</h2>
+      <pre id="revealOutput"></pre>
+      <button>Close</button>
+    </form>
+  </dialog>
+  <script>
+    (() => {
+      const map = { '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9' };
+      const normalize = value => value.replace(/[۰-۹٠-٩]/g, digit => map[digit]);
+      const walk = root => {
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+          acceptNode: node => ['SCRIPT', 'STYLE'].includes(node.parentElement?.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+        });
+        while (walker.nextNode()) walker.currentNode.nodeValue = normalize(walker.currentNode.nodeValue);
+      };
+      walk(document.body);
+      new MutationObserver(items => items.forEach(item => item.type === 'characterData' ? item.target.nodeValue = normalize(item.target.nodeValue) : item.addedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && walk(node)))).observe(document.body, { childList: true, subtree: true, characterData: true });
+    })();
+  </script>
+  <script src="/app.js"></script>
+</body>
+</html>

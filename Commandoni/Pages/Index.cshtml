@@ -115,14 +115,14 @@
                                 <div>
                                     <span class="category-pill">@snippet.Category</span>
                                     <h3>@snippet.Name</h3>
-                                    @if (!string.IsNullOrWhiteSpace(snippet.Description))
+                                    @if (!string.IsNullOrWhiteSpace(Model.Plain(snippet.Description)))
                                     {
-                                        <p class="snippet-description">@snippet.Description</p>
+                                        <p class="snippet-description">sha256:@Model.Fingerprint(snippet.Description)</p>
                                     }
                                 </div>
                                 <div class="snippet-actions">
-                                    <button type="button" class="btn btn-sm btn-outline-primary copy-button" data-copy-target="snippet-@snippet.Id">
-                                        Copy
+                                    <button type="button" class="btn btn-sm btn-outline-primary reveal-button" data-id="@snippet.Id" data-kind="command">
+                                        Reveal details
                                     </button>
                                     <a class="btn btn-sm btn-outline-secondary" asp-page="/Index" asp-route-EditId="@snippet.Id" asp-route-Search="@Model.Search" asp-route-Category="@Model.Category" asp-route-PageNumber="@Model.PageNumber" asp-route-PageSize="@Model.PageSize">
                                         Edit
@@ -133,7 +133,7 @@
                                     </form>
                                 </div>
                             </div>
-                            <pre id="snippet-@snippet.Id"><code>@snippet.Content</code></pre>
+                            <pre id="snippet-@snippet.Id"><code>sha256:@Model.Fingerprint(snippet.Content)</code></pre>
                         </article>
                     }
                 </div>
@@ -217,6 +217,27 @@
                     closeSuggestions();
                 }
             });
+        });
+
+        async function revealSnippet(button) {
+            const password = window.prompt("Enter the admin password to reveal these details:");
+            if (!password) return;
+            const response = await fetch(`/api/snippets/${button.dataset.id}/reveal`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password })
+            });
+            if (!response.ok) {
+                window.alert("The password is incorrect or the item was not found.");
+                return;
+            }
+            const item = await response.json();
+            const target = document.getElementById(`snippet-${button.dataset.id}`);
+            target.textContent = item.content;
+        }
+
+        document.querySelectorAll(".reveal-button").forEach((button) => {
+            button.addEventListener("click", () => revealSnippet(button));
         });
 
         document.querySelectorAll(".copy-button").forEach((button) => {

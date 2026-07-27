@@ -68,15 +68,15 @@
                         <div class="file-card-header">
                             <div class="file-details">
                                 <span class="file-category">@file.Category</span>
-                                <h3>@file.Title</h3>
-                                @if (!string.IsNullOrWhiteSpace(file.Description)) { <p class="file-description">@file.Description</p> }
+                                <h3>sha256:@Model.Fingerprint(file.Title)</h3>
+                                @if (!string.IsNullOrWhiteSpace(Model.Plain(file.Description))) { <p class="file-description">sha256:@Model.Fingerprint(file.Description)</p> }
                             </div>
                             <div class="actions">
-                                <a class="btn btn-sm btn-outline-primary" asp-page-handler="Download" asp-route-key="@file.Key">Download</a>
+                                <button class="btn btn-sm btn-outline-primary secure-download" type="button" data-key="@file.Key">Download</button>
                                 <button class="btn btn-sm btn-outline-secondary edit-file" type="button"
                                         data-bs-toggle="modal" data-bs-target="#edit-file-modal"
-                                        data-key="@file.Key" data-title="@file.Title"
-                                        data-category="@file.Category" data-description="@file.Description">Edit</button>
+                                        data-key="@file.Key" data-title="@Model.Plain(file.Title)"
+                                        data-category="@file.Category" data-description="@Model.Plain(file.Description)">Edit</button>
                                 <form method="post" asp-page-handler="Delete"
                                       data-delete-confirmation data-delete-name="@file.Title">
                                     <input type="hidden" name="key" value="@file.Key" />
@@ -86,7 +86,7 @@
                         </div>
                         <div class="file-object-meta">
                             <span class="file-extension">@System.IO.Path.GetExtension(file.FileName).TrimStart('.').ToUpperInvariant()</span>
-                            <span class="file-name">@file.FileName</span>
+                            <span class="file-name">sha256:@Model.Fingerprint(file.FileName)</span>
                             <span>@Filedoni.Pages.IndexModel.FormatSize(file.Size)</span>
                             <span>@(file.LastModified?.LocalDateTime.ToString("yyyy-MM-dd HH:mm") ?? "Unknown date")</span>
                         </div>
@@ -191,6 +191,14 @@
                 document.getElementById('Edit_Title').value = button.dataset.title || '';
                 document.getElementById('Edit_Category').value = button.dataset.category || '';
                 document.getElementById('Edit_Description').value = button.dataset.description || '';
+            });
+        });
+
+        document.querySelectorAll('.secure-download').forEach(button => {
+            button.addEventListener('click', () => {
+                const password = window.prompt('برای دانلود فایل، رمز کاربر admin را وارد کنید:');
+                if (!password) return;
+                window.location.href = `?handler=Download&key=${encodeURIComponent(button.dataset.key)}&password=${encodeURIComponent(password)}`;
             });
         });
 

@@ -1,11 +1,13 @@
 using Commandoni.Contracts;
 using Commandoni.Data;
 using Commandoni.Models;
-using Microsoft.AspNetCore.DataProtection;
+using Alldoni.Shared.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 var appDataPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data");
 var dataProtectionKeysPath = Path.Combine(appDataPath, "Keys");
 
@@ -17,9 +19,7 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 builder.Services.AddRazorPages();
-builder.Services
-    .AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+builder.Services.AddAlldoniSecurity(builder.Environment);
 builder.Services.AddDbContext<CommandLibraryDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("CommandLibrary")
         ?? "Data Source=App_Data/commandoni.db"));
@@ -43,7 +43,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseAuthorization();
+app.UseAlldoniSecurity();
 
 app.MapStaticAssets();
 
@@ -109,17 +109,47 @@ snippetsApi.MapGet("/{id:int}", async Task<Results<Ok<SnippetResponse>, NotFound
     return snippet is null ? TypedResults.NotFound() : TypedResults.Ok(snippet);
 });
 
+snippetsApi.MapPost("/{id:int}/reveal", async (
+    int id,
+    RevealRequest request,
+    CommandLibraryDbContext db,
+    PasswordStore passwordStore,
+    SecureValueProtector secureValues,
+    CancellationToken cancellationToken) =>
+{
+    if (!passwordStore.Verify(request.Password))
+    {
+        return Results.Json(new { error = "Password is required." }, statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    var snippet = await db.CommandSnippets
+        .AsNoTracking()
+        .FirstOrDefaultAsync(item => item.Id == id, cancellationToken);
+
+    return snippet is null
+        ? Results.NotFound()
+        : Results.Ok(new
+        {
+            snippet.Id,
+            name = secureValues.Unprotect(snippet.Name),
+            category = secureValues.Unprotect(snippet.Category),
+            description = secureValues.Unprotect(snippet.Description),
+            content = secureValues.Unprotect(snippet.Content)
+        });
+});
+
 snippetsApi.MapPost("/", async Task<Created<SnippetResponse>> (
     CreateSnippetRequest request,
     CommandLibraryDbContext db,
+    SecureValueProtector secureValues,
     CancellationToken cancellationToken) =>
 {
     var snippet = new CommandSnippet
     {
         Name = request.Name.Trim(),
         Category = request.Category.Trim(),
-        Description = request.Description?.Trim() ?? string.Empty,
-        Content = request.Content.Trim(),
+        Description = secureValues.Protect(request.Description),
+        Content = secureValues.Protect(request.Content),
         CreatedAtUtc = DateTime.UtcNow
     };
 
@@ -133,6 +163,7 @@ snippetsApi.MapPut("/{id:int}", async Task<Results<Ok<SnippetResponse>, NotFound
     int id,
     UpdateSnippetRequest request,
     CommandLibraryDbContext db,
+    SecureValueProtector secureValues,
     CancellationToken cancellationToken) =>
 {
     var snippet = await db.CommandSnippets.FindAsync([id], cancellationToken);
@@ -143,8 +174,8 @@ snippetsApi.MapPut("/{id:int}", async Task<Results<Ok<SnippetResponse>, NotFound
 
     snippet.Name = request.Name.Trim();
     snippet.Category = request.Category.Trim();
-    snippet.Description = request.Description?.Trim() ?? string.Empty;
-    snippet.Content = request.Content.Trim();
+    snippet.Description = secureValues.Protect(request.Description);
+    snippet.Content = secureValues.Protect(request.Content);
     snippet.UpdatedAtUtc = DateTime.UtcNow;
 
     await db.SaveChangesAsync(cancellationToken);
@@ -210,3 +241,5 @@ static void EnsureDescriptionColumn(CommandLibraryDbContext db)
         db.Database.ExecuteSqlRaw("ALTER TABLE CommandSnippets ADD COLUMN Description TEXT NOT NULL DEFAULT '';");
     }
 }
+
+public sealed record RevealRequest(string Password);

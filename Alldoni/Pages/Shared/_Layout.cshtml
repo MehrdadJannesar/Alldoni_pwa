@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Alldoni</title>
     <meta name="theme-color" content="#182238" />
+    <link rel="manifest" href="~/manifest.webmanifest" />
     <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -18,6 +19,21 @@
         <p>&copy; @DateTime.Now.ToString("yyyy") <a href="https://mehrdadjannesar.com/" target="_blank" rel="noopener noreferrer">Mehrdad Jannesar</a>. All Rights Reserved.</p>
     </footer>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (() => {
+            const map = { '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9','٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9' };
+            const normalize = value => value.replace(/[۰-۹٠-٩]/g, digit => map[digit]);
+            const walk = root => {
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode: node => ['SCRIPT', 'STYLE'].includes(node.parentElement?.tagName) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+                });
+                while (walker.nextNode()) walker.currentNode.nodeValue = normalize(walker.currentNode.nodeValue);
+            };
+            walk(document.body);
+            new MutationObserver(items => items.forEach(item => item.type === 'characterData' ? item.target.nodeValue = normalize(item.target.nodeValue) : item.addedNodes.forEach(node => node.nodeType === Node.ELEMENT_NODE && walk(node)))).observe(document.body, { childList: true, subtree: true, characterData: true });
+        })();
+    </script>
+    <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');</script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

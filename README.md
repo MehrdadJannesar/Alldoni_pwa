@@ -2,13 +2,15 @@
 
 ![Alldoni application hub](docs/alldoni-preview.png)
 
-Alldoni is a .NET 10 workspace containing a central Super App and four small personal library applications:
+Alldoni is a .NET 10 workspace containing a central Super App and six small personal library applications:
 
 - **Alldoni** is the central hub for opening and checking the availability of every application.
 - **Commandoni** stores searchable commands and text snippets in SQLite.
 - **Linkdoni** stores searchable links with names, categories, and optional descriptions in SQLite.
 - **Filedoni** uploads, lists, downloads, searches, and deletes files in Arvan Cloud Object Storage.
 - **Notesdoni** uploads, lists, downloads, edits, searches, and deletes note files in Arvan Cloud Object Storage.
+- **Passworddoni** stores encrypted password records and reveals them after the admin password is confirmed.
+- **Musicdoni** manages and plays a private music library stored in Arvan Cloud Object Storage.
 
 All projects use Razor Pages for their interfaces. Commandoni and Linkdoni also expose Minimal API endpoints.
 
@@ -21,6 +23,8 @@ All projects use Razor Pages for their interfaces. Commandoni and Linkdoni also 
 | `Linkdoni/` | SQLite | Important links and bookmarks |
 | `Filedoni/` | Arvan S3-compatible storage | Private file storage |
 | `Notesdoni/` | Arvan S3-compatible storage | Note file storage |
+| `Passworddoni/` | Encrypted JSON | Private password vault |
+| `Musicdoni/` | Arvan S3-compatible storage | Private music library |
 
 The parent solution is `Alldoni.slnx`.
 
@@ -42,14 +46,16 @@ dotnet build Alldoni.slnx
 Run each application in a separate terminal:
 
 ```powershell
-dotnet run --project Alldoni\Alldoni.csproj
-dotnet run --project Commandoni\Commandoni.csproj
-dotnet run --project Linkdoni\Linkdoni.csproj
-dotnet run --project Filedoni\Filedoni.csproj
-dotnet run --project Notesdoni\Notesdoni.csproj
+dotnet run --project Alldoni\Alldoni.csproj --urls http://localhost:5051
+dotnet run --project Commandoni\Commandoni.csproj --urls http://localhost:5095
+dotnet run --project Linkdoni\Linkdoni.csproj --urls http://localhost:5166
+dotnet run --project Filedoni\Filedoni.csproj --urls http://localhost:5277
+dotnet run --project Notesdoni\Notesdoni.csproj --urls http://localhost:5388
+dotnet run --project Passworddoni\Passworddoni.csproj --urls http://localhost:5489
+dotnet run --project Musicdoni\Musicdoni.csproj --urls http://localhost:5100
 ```
 
-Open the Super App at `http://localhost:5050`. Its application URLs can be changed in `Alldoni/appsettings.json` or overridden through configuration.
+Open the Super App at `http://localhost:5051`. Its application URLs can be changed in `Alldoni/appsettings.json` or overridden through configuration.
 
 Commandoni and Linkdoni create their `App_Data` directories and SQLite databases automatically on first run.
 

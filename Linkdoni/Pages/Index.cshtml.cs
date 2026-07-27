@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Alldoni.Shared.Security;
 using Linkdoni.Data;
 using Linkdoni.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Linkdoni.Pages;
 
-public sealed class IndexModel(LinkdoniDbContext db) : PageModel
+public sealed class IndexModel(LinkdoniDbContext db, SecureValueProtector secureValues) : PageModel
 {
     [BindProperty]
     public LinkInput Input { get; set; } = new();
@@ -52,12 +53,16 @@ public sealed class IndexModel(LinkdoniDbContext db) : PageModel
         }
 
         link.Name = Input.Name.Trim();
-        link.Url = Input.Url.Trim();
+        link.Url = secureValues.Protect(Input.Url);
         link.Category = Input.Category.Trim();
-        link.Description = Input.Description?.Trim();
+        link.Description = secureValues.Protect(Input.Description);
         await db.SaveChangesAsync();
         return RedirectToPage();
     }
+
+    public string Fingerprint(string? value) => secureValues.Fingerprint(value);
+
+    public string Plain(string? value) => secureValues.Unprotect(value);
 
     public async Task<IActionResult> OnPostDeleteAsync(int id)
     {

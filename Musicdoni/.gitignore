@@ -1,0 +1,24 @@
+﻿# Build output
+artifacts/
+bin/
+obj/
+
+# IDE / editor files
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Local-only configuration and secrets
+appsettings.Local.json
+appsettings.*.Local.json
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.Development.json
+
+# Logs / temporary files
+*.log
+*.tmp
+
+
+

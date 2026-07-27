@@ -1,10 +1,14 @@
 using Filedoni.Services;
+using Alldoni.Shared.Security;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddRazorPages();
+builder.Services.AddAlldoniSecurity(builder.Environment);
 builder.Services.Configure<ArvanStorageOptions>(
     builder.Configuration.GetSection(ArvanStorageOptions.SectionName));
 builder.Services.AddSingleton<IFileStorage, ArvanFileStorage>();
@@ -21,7 +25,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseAuthorization();
+app.UseAlldoniSecurity();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
@@ -44,6 +48,7 @@ app.MapPost("/api/files", async (
     [Microsoft.AspNetCore.Mvc.FromForm] string? description,
     IFileStorage storage,
     IOptions<ArvanStorageOptions> options,
+    SecureValueProtector secureValues,
     CancellationToken cancellationToken) =>
 {
     if (file.Length == 0) return Results.BadRequest(new { error = "Choose a non-empty file." });
@@ -54,9 +59,9 @@ app.MapPost("/api/files", async (
     await using var stream = file.OpenReadStream();
     await storage.UploadAsync(
         file.FileName,
-        title,
+        secureValues.Protect(title),
         category,
-        description,
+        secureValues.Protect(description),
         stream,
         file.ContentType,
         cancellationToken);
@@ -65,10 +70,17 @@ app.MapPost("/api/files", async (
 
 app.MapGet("/api/files/download", async (
     string key,
+    string password,
     IFileStorage storage,
+    PasswordStore passwordStore,
     HttpContext context,
     CancellationToken cancellationToken) =>
 {
+    if (!passwordStore.Verify(password))
+    {
+        return Results.Json(new { error = "Password is required." }, statusCode: StatusCodes.Status401Unauthorized);
+    }
+
     var download = await storage.OpenReadAsync(key, cancellationToken);
     if (download is null) return Results.NotFound();
     context.Response.RegisterForDispose(download);
@@ -78,6 +90,7 @@ app.MapGet("/api/files/download", async (
 app.MapPut("/api/files/metadata", async (
     UpdateFileMetadataRequest request,
     IFileStorage storage,
+    SecureValueProtector secureValues,
     CancellationToken cancellationToken) =>
 {
     if (string.IsNullOrWhiteSpace(request.Key))
@@ -89,9 +102,9 @@ app.MapPut("/api/files/metadata", async (
 
     await storage.UpdateMetadataAsync(
         request.Key,
-        request.Title,
+        secureValues.Protect(request.Title),
         request.Category,
-        request.Description,
+        secureValues.Protect(request.Description),
         cancellationToken);
     return Results.NoContent();
 });

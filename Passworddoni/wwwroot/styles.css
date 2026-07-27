@@ -1,0 +1,341 @@
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/IRANSans/IRANSansWeb(FaNum).woff") format("woff");
+  unicode-range: U+0000-002F, U+003A-10FFFF;
+}
+
+@font-face {
+  font-family: "IRANSans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/IRANSans/IRANSansWeb(FaNum)_Bold.woff") format("woff");
+  unicode-range: U+0000-002F, U+003A-10FFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  min-height: 100%;
+}
+
+body {
+  background: #f6f7f9;
+  color: #172033;
+  font-family: "IRANSans", "Segoe UI", Tahoma, Arial, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+.password-accent {
+  background: #f5b301;
+}
+
+.library-shell {
+  margin: 18px auto 48px;
+  width: min(1296px, calc(100% - 60px));
+}
+
+.library-header {
+  align-items: end;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(240px, .8fr) minmax(520px, 1.2fr);
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  color: #59677d;
+  font-size: .8rem;
+  font-weight: 800;
+  letter-spacing: .08rem;
+  margin-bottom: .4rem;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: clamp(3rem, 5vw, 4.7rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.search-bar {
+  align-items: start;
+  display: grid;
+  gap: .6rem;
+  grid-template-columns: minmax(220px, 1fr) auto auto auto;
+}
+
+.search-bar form {
+  margin: 0;
+}
+
+.library-grid {
+  align-items: start;
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+}
+
+.password-form,
+.password-card,
+.empty-state {
+  background: #fff;
+  border: 1px solid #dfe4ea;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(23, 32, 51, .06);
+}
+
+.password-form {
+  display: grid;
+  gap: 12px;
+  padding: 1rem;
+  position: sticky;
+  top: 1rem;
+}
+
+.password-form h2,
+.password-results h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.form-control {
+  background: #fff;
+  border: 1px solid #d6dde8;
+  border-radius: 6px;
+  color: #172033;
+  font: inherit;
+  min-width: 0;
+  padding: .62rem .75rem;
+  width: 100%;
+}
+
+.form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 .25rem rgba(13, 110, 253, .25);
+  outline: 0;
+}
+
+.note-input {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 500;
+  min-height: 38px;
+  padding: .46rem .78rem;
+  text-align: center;
+}
+
+.btn-dark {
+  background: #212529;
+  color: #fff;
+  width: 100%;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.btn-outline-secondary {
+  background: #fff;
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.btn-outline-primary {
+  background: #fff;
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+.btn-outline-danger {
+  background: #fff;
+  border-color: #dc3545;
+  color: #dc3545;
+}
+
+.btn-sm {
+  font-size: .875rem;
+  min-height: 32px;
+  padding: .25rem .5rem;
+}
+
+#message {
+  color: #59677d;
+  min-height: 22px;
+}
+
+.results-meta {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+}
+
+.results-meta span {
+  color: #59677d;
+  font-weight: 700;
+}
+
+.password-list {
+  display: grid;
+  gap: .9rem;
+}
+
+.password-card {
+  overflow: hidden;
+}
+
+.password-card::before {
+  background: #f5b301;
+  content: "";
+  display: block;
+  height: 4px;
+}
+
+.password-card-header {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 1rem 1rem .75rem;
+}
+
+.password-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-top: .35rem;
+  overflow-wrap: anywhere;
+}
+
+.password-description {
+  color: #59677d;
+  margin-top: .35rem;
+  max-width: 58rem;
+  overflow-wrap: anywhere;
+}
+
+.category-pill {
+  background: #e8f0ff;
+  border: 1px solid #cfe0ff;
+  border-radius: 999px;
+  color: #194f9f;
+  display: inline-flex;
+  font-size: .78rem;
+  font-weight: 800;
+  padding: .2rem .55rem;
+}
+
+.password-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  justify-content: end;
+}
+
+.password-card pre {
+  background: #101828;
+  color: #f6f7f9;
+  font-family: Consolas, "Courier New", monospace;
+  margin: 0;
+  overflow: auto;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.empty-state {
+  color: #59677d;
+  padding: 2rem;
+  text-align: center;
+}
+
+dialog {
+  border: 0;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.dialog {
+  background: #fff;
+  color: #172033;
+  min-width: min(520px, calc(100vw - 32px));
+  padding: 20px;
+}
+
+.dialog pre {
+  white-space: pre-wrap;
+}
+
+@media (max-width: 1199px) {
+  .library-header {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 991px) {
+  .library-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .password-form {
+    position: static;
+  }
+}
+
+@media (max-width: 767px) {
+  .library-shell {
+    margin-top: 14px;
+    width: min(100% - 24px, 1296px);
+  }
+
+  .search-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .search-bar input,
+  .search-bar form {
+    grid-column: 1 / -1;
+  }
+
+  h1 {
+    font-size: 2.7rem;
+  }
+
+  .password-card-header {
+    display: grid;
+  }
+
+  .password-actions {
+    justify-content: start;
+  }
+}
