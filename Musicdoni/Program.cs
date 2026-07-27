@@ -196,17 +196,10 @@ app.MapGet("/api/tracks/{id:guid}", async (
 
 app.MapPost("/api/tracks/{id:guid}/stream-token", async (
     Guid id,
-    PlaybackTokenRequest request,
     IMusicCatalog catalog,
     IMemoryCache cache,
-    PasswordStore passwordStore,
     CancellationToken cancellationToken) =>
 {
-    if (!passwordStore.Verify(request.Password))
-    {
-        return Results.Json(new ProblemDetailsDto("Password is required."), statusCode: StatusCodes.Status401Unauthorized);
-    }
-
     var track = await catalog.GetTrackAsync(id, cancellationToken);
     if (track is null)
     {
@@ -299,9 +292,16 @@ app.MapGet("/api/tracks/{id:guid}/cover", async (
 
 app.MapDelete("/api/tracks/{id:guid}", async (
     Guid id,
+    [FromBody] DeleteTrackRequest request,
     IMusicCatalog catalog,
+    PasswordStore passwordStore,
     CancellationToken cancellationToken) =>
 {
+    if (!passwordStore.Verify(request.Password))
+    {
+        return Results.Json(new ProblemDetailsDto("Admin password is required."), statusCode: StatusCodes.Status401Unauthorized);
+    }
+
     var deleted = await catalog.DeleteTrackAsync(id, cancellationToken);
     return deleted ? Results.NoContent() : Results.NotFound();
 });
@@ -309,8 +309,14 @@ app.MapDelete("/api/tracks/{id:guid}", async (
 app.MapDelete("/api/tracks/delete", async (
     [FromBody] BulkDeleteTracksRequest request,
     IMusicCatalog catalog,
+    PasswordStore passwordStore,
     CancellationToken cancellationToken) =>
 {
+    if (!passwordStore.Verify(request.Password))
+    {
+        return Results.Json(new ProblemDetailsDto("Admin password is required."), statusCode: StatusCodes.Status401Unauthorized);
+    }
+
     if (request.TrackIds is null || request.TrackIds.Length == 0)
     {
         return Results.BadRequest(new ProblemDetailsDto("Choose at least one track to delete."));
@@ -507,10 +513,10 @@ static string CreateSafeFileName(Track track)
 }
 public sealed record StorageUsageResponse(bool Configured, long UsedBytes, int ObjectCount, long? LimitBytes, long? AvailableBytes);
 public sealed record StreamTokenResponse(string Token, int ExpiresInSeconds);
-public sealed record BulkDeleteTracksRequest(Guid[] TrackIds);
+public sealed record DeleteTrackRequest(string Password);
+public sealed record BulkDeleteTracksRequest(Guid[] TrackIds, string Password);
 public sealed record BulkDeleteTracksResponse(IReadOnlyList<Guid> DeletedIds);
 public sealed record PlaylistRequest(string Name);
-public sealed record PlaybackTokenRequest(string Password);
 public sealed record ProblemDetailsDto(string Message);
 
 

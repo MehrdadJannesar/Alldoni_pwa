@@ -390,14 +390,8 @@ async function playTrack(index) {
 }
 
 async function createPlaybackToken(trackId) {
-  const password = window.prompt('برای پخش و باز شدن اطلاعات موسیقی، رمز کاربر admin را وارد کنید:');
-  if (!password) {
-    throw new Error('Password is required.');
-  }
   const response = await fetch(`/api/tracks/${trackId}/stream-token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password })
+    method: 'POST'
   });
   if (!response.ok) {
     const body = await response.json().catch(() => null);
@@ -843,12 +837,17 @@ async function deleteSelectedTracks() {
     return;
   }
 
+  const password = requestAdminPassword();
+  if (!password) {
+    return;
+  }
+
   showDeleteProgress(`Deleting ${ids.length} ${ids.length === 1 ? 'track' : 'tracks'}...`);
   try {
     const response = await fetch('/api/tracks/delete', {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ trackIds: ids })
+      body: JSON.stringify({ trackIds: ids, password })
     });
 
     if (response.ok) {
@@ -875,9 +874,18 @@ async function deleteTrack(id, title) {
     return;
   }
 
+  const password = requestAdminPassword();
+  if (!password) {
+    return;
+  }
+
   showDeleteProgress('Deleting track...');
   try {
-    const response = await fetch(`/api/tracks/${id}`, { method: 'DELETE' });
+    const response = await fetch(`/api/tracks/${id}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
     if (response.ok) {
       removeDeletedTracksFromState(new Set([id]));
       await loadStorageUsage();
@@ -885,6 +893,11 @@ async function deleteTrack(id, title) {
   } finally {
     hideDeleteProgress();
   }
+}
+
+function requestAdminPassword() {
+  const password = window.prompt('Enter the admin password to delete:');
+  return password ? password.trim() : '';
 }
 
 function showDeleteProgress(message) {
