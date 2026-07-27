@@ -64,9 +64,13 @@ resetButton.addEventListener('click', () => {
 });
 
 list.addEventListener('click', async event => {
-  const revealId = event.target.dataset.reveal;
-  const deleteId = event.target.dataset.delete;
+  const revealButton = event.target.closest('[data-reveal]');
+  const deleteButton = event.target.closest('[data-delete]');
+  const revealId = revealButton?.dataset.reveal;
+  const deleteId = deleteButton?.dataset.delete;
   if (revealId) {
+    event.preventDefault();
+    event.stopPropagation();
     const password = window.prompt('Enter the admin password to reveal these details:');
     if (!password) return;
     const response = await fetch(`/api/passwords/${revealId}/reveal`, {
@@ -83,6 +87,8 @@ list.addEventListener('click', async event => {
     dialog.showModal();
   }
   if (deleteId) {
+    event.preventDefault();
+    event.stopPropagation();
     await fetch(`/api/passwords/${deleteId}`, { method: 'DELETE' });
     await loadItems();
   }
