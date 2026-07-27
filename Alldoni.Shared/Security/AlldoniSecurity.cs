@@ -55,6 +55,15 @@ public static class AlldoniSecurity
         app.UseAuthentication();
         app.Use(async (context, next) =>
         {
+            if (!IsStaticAssetPath(context.Request.Path))
+            {
+                context.Response.OnStarting(() =>
+                {
+                    SetNoStoreHeaders(context.Response);
+                    return Task.CompletedTask;
+                });
+            }
+
             if (IsPublicPath(context.Request.Path))
             {
                 await next();
@@ -163,7 +172,9 @@ public static class AlldoniSecurity
         endpoints.MapPost("/logout", async (HttpContext context) =>
         {
             await context.SignOutAsync(Scheme);
-            return Results.Redirect("/login");
+            SetNoStoreHeaders(context.Response);
+            context.Response.Headers["Clear-Site-Data"] = "\"cache\"";
+            return Results.Redirect($"{HubLoginUrl}?signedOut=1");
         }).DisableAntiforgery();
 
         endpoints.MapPost("/api/security/verify-password", async (HttpRequest request, PasswordStore store) =>
@@ -211,6 +222,22 @@ public static class AlldoniSecurity
 
     private static bool IsHubRequest(HttpRequest request) =>
         request.Host.Port == 5051;
+
+    private static bool IsStaticAssetPath(PathString path) =>
+        path.StartsWithSegments("/css")
+        || path.StartsWithSegments("/js")
+        || path.StartsWithSegments("/lib")
+        || path.StartsWithSegments("/fonts")
+        || path.StartsWithSegments("/manifest.webmanifest")
+        || path.StartsWithSegments("/service-worker.js")
+        || path.StartsWithSegments("/favicon.ico");
+
+    private static void SetNoStoreHeaders(HttpResponse response)
+    {
+        response.Headers.CacheControl = "no-store, no-cache, max-age=0, must-revalidate";
+        response.Headers.Pragma = "no-cache";
+        response.Headers.Expires = "0";
+    }
 
     private static string RenderLogin(string? returnUrl = null, string? error = null) => RenderShell("Sign in", $"""
         <form method="post" action="/login" class="auth-card">

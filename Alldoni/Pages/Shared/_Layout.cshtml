@@ -13,6 +13,9 @@
 <body>
     <nav class="topbar">
         <a class="brand" asp-page="/Index"><span>A</span> Alldoni</a>
+        <form class="signout-form" method="post" action="/logout">
+            <button class="signout-button" type="submit">Sign out</button>
+        </form>
     </nav>
     <main>@RenderBody()</main>
     <footer>
@@ -37,6 +40,7 @@
         })();
     </script>
     <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('/service-worker.js');</script>
+    <script>window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });</script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

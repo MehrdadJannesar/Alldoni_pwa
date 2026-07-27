@@ -1,3 +1,3 @@
-self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open('musicdoni-v5').then(cache=>cache.addAll(['/','/manifest.webmanifest','/styles.css','/app.js'])))});
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('musicdoni-')&&key!=='musicdoni-v5').map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{if(event.request.method==='GET')event.respondWith(fetch(event.request).catch(()=>caches.match(event.request)));});
+self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open('musicdoni-v6').then(cache=>cache.addAll(['/manifest.webmanifest','/styles.css','/app.js'])))});
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('musicdoni-')&&key!=='musicdoni-v6').map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{if(event.request.mode==='navigate')return event.respondWith(fetch(event.request));if(event.request.method==='GET')event.respondWith(fetch(event.request).catch(()=>caches.match(event.request)));});

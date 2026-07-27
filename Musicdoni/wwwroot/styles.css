@@ -193,6 +193,24 @@ h1 {
   font-weight: 800;
   padding: 0 18px;
 }
+.signout-form {
+  margin: 0;
+}
+
+.signout-button {
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 999px;
+  background: #171b1f;
+  color: var(--text);
+  font-weight: 800;
+  padding: 0 18px;
+}
+
+.signout-button:hover {
+  background: #242a2f;
+  border-color: rgba(255, 255, 255, .24);
+}
 
 .hero-band {
   display: flex;
@@ -661,6 +679,8 @@ label {
 
   .top-actions input,
   .top-actions .primary,
+  .top-actions .signout-form,
+  .top-actions .signout-button,
   .storage-usage {
     width: 100%;
   }
