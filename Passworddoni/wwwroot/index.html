@@ -43,9 +43,34 @@
   </main>
   <dialog id="revealDialog">
     <form method="dialog" class="dialog">
-      <h2>Revealed details</h2>
-      <pre id="revealOutput"></pre>
-      <button>Close</button>
+      <div class="dialog-header">
+        <div>
+          <span class="dialog-kicker">Secure Entry</span>
+          <h2>Revealed Details</h2>
+        </div>
+        <button class="dialog-close" type="submit" aria-label="Close">&times;</button>
+      </div>
+      <dl id="revealOutput" class="detail-list">
+        <div class="detail-row">
+          <dt>Title</dt>
+          <dd data-field="title"></dd>
+        </div>
+        <div class="detail-row">
+          <dt>Username</dt>
+          <dd data-field="username"></dd>
+        </div>
+        <div class="detail-row sensitive">
+          <dt>Password</dt>
+          <dd data-field="password"></dd>
+        </div>
+        <div class="detail-row">
+          <dt>Note</dt>
+          <dd data-field="note"></dd>
+        </div>
+      </dl>
+      <div class="dialog-actions">
+        <button class="btn btn-dark" type="submit">Close</button>
+      </div>
     </form>
   </dialog>
   <script>

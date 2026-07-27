@@ -3,6 +3,12 @@ const list = document.querySelector('#list');
 const message = document.querySelector('#message');
 const dialog = document.querySelector('#revealDialog');
 const output = document.querySelector('#revealOutput');
+const revealFields = {
+  title: output.querySelector('[data-field="title"]'),
+  username: output.querySelector('[data-field="username"]'),
+  password: output.querySelector('[data-field="password"]'),
+  note: output.querySelector('[data-field="note"]')
+};
 const searchInput = document.querySelector('#searchInput');
 const searchButton = document.querySelector('#searchButton');
 const resetButton = document.querySelector('#resetButton');
@@ -83,7 +89,10 @@ list.addEventListener('click', async event => {
       return;
     }
     const item = await response.json();
-    output.textContent = `Title: ${item.title}\nUsername: ${item.username || ''}\nPassword: ${item.password}\nNote: ${item.note || ''}`;
+    revealFields.title.textContent = item.title || '-';
+    revealFields.username.textContent = item.username || '-';
+    revealFields.password.textContent = item.password || '-';
+    revealFields.note.textContent = item.note || '-';
     dialog.showModal();
   }
   if (deleteId) {
