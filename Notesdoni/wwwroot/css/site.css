@@ -80,9 +80,9 @@ h2 { font-size: 1.15rem; font-weight: 750; }
 .file-details .file-description { color: #59677d; font-size: .9rem; margin: .35rem 0 0; max-width: 56rem; overflow-wrap: anywhere; }
 .actions { display: flex; flex-shrink: 0; flex-wrap: wrap; gap: .45rem; justify-content: end; }
 .actions form { margin: 0; }
-.file-object-meta { align-items: center; background: #101828; color: #d7deea; display: flex; flex-wrap: wrap; gap: .55rem 1rem; min-height: 52px; padding: .75rem 1rem; }
-.file-object-meta > span:not(:last-child)::after { color: #62708a; content: "·"; margin-left: 1rem; }
-.file-extension { color: #a8c8ff; font-family: Consolas, "Courier New", monospace; font-size: .72rem; font-weight: 800; }
+.file-object-meta { align-items: center; background: #101828; color: #fff; display: flex; flex-wrap: wrap; gap: .55rem 1rem; min-height: 52px; padding: .75rem 1rem; }
+.file-object-meta > span:not(:last-child)::after { color: #fff; content: "·"; margin-left: 1rem; }
+.file-extension { color: #fff; font-family: Consolas, "Courier New", monospace; font-size: .72rem; font-weight: 800; }
 .file-name { color: #fff; font-family: Consolas, "Courier New", monospace; overflow-wrap: anywhere; }
 .file-object-meta span { font-size: .82rem; }
 .edit-fields { display: grid; gap: .5rem; }

@@ -261,10 +261,14 @@ label {
   justify-content: end;
 }
 
-.password-card pre {
+.password-card pre,
+.password-card pre code {
   background: #101828;
-  color: #f6f7f9;
+  color: #ffffff;
   font-family: Consolas, "Courier New", monospace;
+}
+
+.password-card pre {
   margin: 0;
   overflow: auto;
   padding: 1rem;

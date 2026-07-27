@@ -281,10 +281,14 @@ body > .container {
   justify-content: end;
 }
 
-.snippet-card pre {
+.snippet-card pre,
+.snippet-card pre code {
   background: #101828;
-  color: #f6f7f9;
+  color: #ffffff;
   font-family: Consolas, "Courier New", monospace;
+}
+
+.snippet-card pre {
   margin: 0;
   max-height: 360px;
   overflow: auto;
