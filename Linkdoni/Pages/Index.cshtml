@@ -65,7 +65,7 @@
                             <div class="link-copy">
                                 <span class="category">@link.Category</span>
                                 <h3>@link.Name</h3>
-                                @if (!string.IsNullOrWhiteSpace(Model.Plain(link.Description))) { <p class="link-description">sha256:@Model.Fingerprint(link.Description)</p> }
+                                @if (!string.IsNullOrWhiteSpace(Model.Plain(link.Description))) { <p class="link-description" id="link-description-@link.Id">sha256:@Model.Fingerprint(link.Description)</p> }
                             </div>
                             <div class="actions">
                                 <button class="btn btn-sm btn-outline-primary reveal-link" type="button" data-id="@link.Id">Reveal details</button>
@@ -171,7 +171,11 @@
             }
             const item = await response.json();
             const holder = document.getElementById(`link-url-${button.dataset.id}`);
-            holder.textContent = item.url;
+            const description = document.getElementById(`link-description-${button.dataset.id}`);
+            if (description) description.textContent = item.description || "";
+            holder.textContent = item.url || "";
+            button.textContent = 'Revealed';
+            button.disabled = true;
         }
         document.querySelectorAll('.reveal-link').forEach(button => button.addEventListener('click', event => {
             event.preventDefault();

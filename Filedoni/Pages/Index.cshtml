@@ -68,10 +68,11 @@
                         <div class="file-card-header">
                             <div class="file-details">
                                 <span class="file-category">@file.Category</span>
-                                <h3>sha256:@Model.Fingerprint(file.Title)</h3>
+                                <h3 class="file-title">sha256:@Model.Fingerprint(file.Title)</h3>
                                 @if (!string.IsNullOrWhiteSpace(Model.Plain(file.Description))) { <p class="file-description">sha256:@Model.Fingerprint(file.Description)</p> }
                             </div>
                             <div class="actions">
+                                <button class="btn btn-sm btn-outline-primary reveal-file" type="button" data-key="@file.Key">Reveal details</button>
                                 <button class="btn btn-sm btn-outline-primary secure-download" type="button" data-key="@file.Key">Download</button>
                                 <button class="btn btn-sm btn-outline-secondary edit-file" type="button"
                                         data-bs-toggle="modal" data-bs-target="#edit-file-modal"
@@ -196,9 +197,40 @@
 
         document.querySelectorAll('.secure-download').forEach(button => {
             button.addEventListener('click', () => {
-                const password = window.prompt('برای دانلود فایل، رمز کاربر admin را وارد کنید:');
+                const password = window.prompt('Enter the admin password to download this file:');
                 if (!password) return;
                 window.location.href = `?handler=Download&key=${encodeURIComponent(button.dataset.key)}&password=${encodeURIComponent(password)}`;
+            });
+        });
+
+        async function revealFile(button) {
+            const password = window.prompt('Enter the admin password to reveal these details:');
+            if (!password) return;
+            const response = await fetch('/api/files/reveal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: button.dataset.key, password })
+            });
+            if (!response.ok) {
+                window.alert('The password is incorrect or the file was not found.');
+                return;
+            }
+
+            const item = await response.json();
+            const card = button.closest('.file-card');
+            card.querySelector('.file-title').textContent = item.title || '';
+            const description = card.querySelector('.file-description');
+            if (description) description.textContent = item.description || '';
+            card.querySelector('.file-name').textContent = item.fileName || '';
+            button.textContent = 'Revealed';
+            button.disabled = true;
+        }
+
+        document.querySelectorAll('.reveal-file').forEach(button => {
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                revealFile(button);
             });
         });
 

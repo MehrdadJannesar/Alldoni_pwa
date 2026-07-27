@@ -41,6 +41,35 @@ app.MapGet("/api/status", (IOptions<ArvanStorageOptions> options) =>
 app.MapGet("/api/files", async (IFileStorage storage, CancellationToken cancellationToken) =>
     Results.Ok(await storage.ListAsync(cancellationToken)));
 
+app.MapPost("/api/files/reveal", async (
+    RevealFileRequest request,
+    IFileStorage storage,
+    PasswordStore passwordStore,
+    SecureValueProtector secureValues,
+    CancellationToken cancellationToken) =>
+{
+    if (!passwordStore.Verify(request.Password))
+    {
+        return Results.Json(new { error = "Password is required." }, statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    var file = (await storage.ListAsync(cancellationToken))
+        .FirstOrDefault(item => item.Key == request.Key);
+
+    return file is null
+        ? Results.NotFound()
+        : Results.Ok(new
+        {
+            file.Key,
+            fileName = secureValues.Unprotect(file.FileName),
+            title = secureValues.Unprotect(file.Title),
+            file.Category,
+            description = secureValues.Unprotect(file.Description),
+            file.Size,
+            file.LastModified
+        });
+});
+
 app.MapPost("/api/files", async (
     IFormFile file,
     [Microsoft.AspNetCore.Mvc.FromForm] string title,
@@ -125,3 +154,5 @@ public sealed record UpdateFileMetadataRequest(
     string Title,
     string Category,
     string? Description);
+
+public sealed record RevealFileRequest(string Key, string Password);
