@@ -22,7 +22,7 @@ function renderItems() {
       <div class="password-card-header">
         <div>
           <span class="category-pill">Secure Entry</span>
-          <h3>sha256:${item.title}</h3>
+          <h3>${item.title}</h3>
           <p class="password-description">user: sha256:${item.username}</p>
         </div>
         <div class="password-actions">

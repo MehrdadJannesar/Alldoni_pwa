@@ -18,7 +18,7 @@ app.MapGet("/api/passwords", (PasswordVault vault, SecureValueProtector secureVa
     Results.Ok(vault.List().Select(item => new
     {
         item.Id,
-        title = secureValues.Fingerprint(item.Title),
+        title = secureValues.Unprotect(item.Title),
         username = secureValues.Fingerprint(item.Username),
         password = secureValues.Fingerprint(item.Password),
         note = secureValues.Fingerprint(item.Note),

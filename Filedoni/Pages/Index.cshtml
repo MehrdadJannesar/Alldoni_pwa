@@ -68,7 +68,7 @@
                         <div class="file-card-header">
                             <div class="file-details">
                                 <span class="file-category">@file.Category</span>
-                                <h3 class="file-title">sha256:@Model.Fingerprint(file.Title)</h3>
+                                <h3 class="file-title">@Model.Plain(file.Title)</h3>
                                 @if (!string.IsNullOrWhiteSpace(Model.Plain(file.Description))) { <p class="file-description">sha256:@Model.Fingerprint(file.Description)</p> }
                             </div>
                             <div class="actions">
