@@ -98,6 +98,7 @@ public static class AlldoniSecurity
     {
         return path.StartsWithSegments("/login")
             || path.StartsWithSegments("/change-password")
+            || path.StartsWithSegments("/api/apps")
             || path.StartsWithSegments("/css")
             || path.StartsWithSegments("/js")
             || path.StartsWithSegments("/lib")

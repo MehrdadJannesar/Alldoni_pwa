@@ -1,10 +1,17 @@
-using System.Net.Sockets;
 using Alldoni.Models;
 
 namespace Alldoni.Services;
 
 public sealed class AppAvailabilityService
 {
+    private static readonly HttpClient HttpClient = new(new HttpClientHandler
+    {
+        AllowAutoRedirect = false
+    })
+    {
+        Timeout = TimeSpan.FromSeconds(3)
+    };
+
     public async Task<IReadOnlyDictionary<string, bool>> CheckAsync(
         IEnumerable<AppEntry> applications,
         CancellationToken cancellationToken)
@@ -23,21 +30,17 @@ public sealed class AppAvailabilityService
             return (application.Key, false);
         }
 
-        var port = uri.IsDefaultPort
-            ? uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase) ? 443 : 80
-            : uri.Port;
-
         try
         {
-            using var client = new TcpClient();
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-            timeout.CancelAfter(TimeSpan.FromSeconds(2));
-            await client.ConnectAsync(uri.Host, port, timeout.Token);
-            return (application.Key, client.Connected);
+            using var request = new HttpRequestMessage(HttpMethod.Head, uri);
+            using var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            return (application.Key, (int)response.StatusCode < 500);
         }
-        catch (Exception exception) when (exception is SocketException
-            or TimeoutException
-            or OperationCanceledException)
+        catch (HttpRequestException)
+        {
+            return (application.Key, false);
+        }
+        catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             return (application.Key, false);
         }
