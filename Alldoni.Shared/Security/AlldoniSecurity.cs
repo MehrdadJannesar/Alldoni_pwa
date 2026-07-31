@@ -221,7 +221,7 @@ public static class AlldoniSecurity
         $"{request.Scheme}://{request.Host}{request.PathBase}/";
 
     private static bool IsHubRequest(HttpRequest request) =>
-        request.Host.Port == 5051;
+        request.Host.Port is 5050 or 5051;
 
     private static bool IsStaticAssetPath(PathString path) =>
         path.StartsWithSegments("/css")
