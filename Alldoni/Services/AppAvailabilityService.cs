@@ -6,7 +6,8 @@ public sealed class AppAvailabilityService
 {
     private static readonly HttpClient HttpClient = new(new HttpClientHandler
     {
-        AllowAutoRedirect = false
+        AllowAutoRedirect = false,
+        UseProxy = false
     })
     {
         Timeout = TimeSpan.FromSeconds(3)
@@ -30,9 +31,21 @@ public sealed class AppAvailabilityService
             return (application.Key, false);
         }
 
+        // IIS application pools can resolve localhost differently from the browser.
+        // Use the IPv4 loopback for local health checks and avoid proxy/DNS behavior.
+        if (string.Equals(uri.Host, "localhost", StringComparison.OrdinalIgnoreCase))
+        {
+            var builder = new UriBuilder(uri)
+            {
+                Host = "127.0.0.1"
+            };
+            uri = builder.Uri;
+        }
+
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Head, uri);
+            using var request = new HttpRequestMessage(HttpMethod.Get, uri);
+            request.Headers.UserAgent.ParseAdd("Alldoni-AppHub-Health/1.0");
             using var response = await HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
             return (application.Key, (int)response.StatusCode < 500);
         }
